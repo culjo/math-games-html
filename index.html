@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Games Arcade — Zero Point & Mathoku</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #080a11;
+            --bg-card: rgba(18, 24, 38, 0.85);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --cyan: #00f2fe;
+            --purple: #c471ed;
+            --gold: #ffd600;
+            --coral: #ff4e50;
+            --font: 'Inter', -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #f0f4fc;
+            font-family: var(--font);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(0, 242, 254, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(196, 113, 237, 0.08) 0%, transparent 50%);
+        }
+
+        .hub-container {
+            width: 100%;
+            max-width: 820px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        header {
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.4rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 50%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #8b9bb4;
+            font-size: 1rem;
+        }
+
+        .games-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .game-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 16px;
+            backdrop-filter: blur(12px);
+            transition: all 0.25s ease;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 242, 254, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .game-card.mathoku:hover {
+            border-color: var(--purple);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(196, 113, 237, 0.25);
+        }
+
+        .badge {
+            align-self: flex-start;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .badge.cascade {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--cyan);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+        }
+
+        .badge.weaver {
+            background: rgba(196, 113, 237, 0.15);
+            color: var(--purple);
+            border: 1px solid rgba(196, 113, 237, 0.3);
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        .game-desc {
+            color: #8b9bb4;
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        .features-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: #cbd5e1;
+        }
+
+        .features-list li::before {
+            content: "✓ ";
+            color: var(--cyan);
+            font-weight: 900;
+        }
+
+        .mathoku .features-list li::before {
+            color: var(--purple);
+        }
+
+        .btn-launch {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--cyan) 0%, #0091ea 100%);
+            color: #fff;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 16px rgba(0, 242, 254, 0.3);
+            margin-top: 8px;
+        }
+
+        .game-card.factoria:hover {
+            border-color: var(--gold);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.25);
+        }
+
+        .badge.deckbuilder {
+            background: rgba(255, 215, 0, 0.15);
+            color: var(--gold);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .factoria .features-list li::before {
+            color: var(--gold);
+        }
+
+        .factoria .btn-launch {
+            background: linear-gradient(135deg, var(--gold) 0%, #ff8f00 100%);
+            color: #000;
+            box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="hub-container" style="max-width: 1140px;">
+        <header>
+            <h1>Math Games Arcade</h1>
+            <p>Three innovative, tactile arithmetic puzzle games engineered for pure fun</p>
+        </header>
+
+        <div class="games-grid">
+            <!-- Game 1: Zero Point -->
+            <a href="zero-point/index.html" class="game-card">
+                <span class="badge cascade">Concept 1: Cascade & Detonation</span>
+                <div>
+                    <h2 class="game-title" style="color: var(--cyan);">ZERO POINT</h2>
+                    <p style="font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 800; margin-bottom: 8px;">Quantum Math Cascade</p>
+                    <p class="game-desc">Matter (+4) and Anti-matter (-4) collide to reach 0. Trigger screen-shattering Zero Point detonations, same-sign syntheses, and Singularity Frenzy black holes.</p>
+                </div>
+                <ul class="features-list">
+                    <li>Opposite Annihilation ($4 + -4 = 0$)</li>
+                    <li>Same-Sign Synthesis ($3 + 3 = 6$)</li>
+                    <li>Falling block gravity & combo cascades</li>
+                    <li>Singularity Frenzy Black Hole super-weapons</li>
+                </ul>
+                <div class="btn-launch">
+                    Play Zero Point ➜
+                </div>
+            </a>
+
+            <!-- Game 2: Factoria -->
+            <a href="factoria/index.html" class="game-card factoria">
+                <span class="badge deckbuilder">Concept 2: Rogue-lite Deckbuilder</span>
+                <div>
+                    <h2 class="game-title" style="color: var(--gold);">FACTORIA</h2>
+                    <p style="font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 800; margin-bottom: 8px;">The Math Deckbuilder</p>
+                    <p class="game-desc">Assemble tactical equations to breach high-security Vaults. Collect game-breaking Engine Modules (Relics) and card boosters in a Balatro-style rogue-lite.</p>
+                </div>
+                <ul class="features-list">
+                    <li>Balatro-style Hand Scoring ($\text{Chips} \times \text{Mult}$)</li>
+                    <li>25+ Synergistic Engine Modules (Relics)</li>
+                    <li>Equation Assembly Rail & Tactical Discards</li>
+                    <li>Shop Depot, Boosters & Boss Vault Protocols</li>
+                </ul>
+                <div class="btn-launch">
+                    Play Factoria ➜
+                </div>
+            </a>
+
+            <!-- Game 3: Mathoku -->
+            <a href="Mathoku/index.html" class="game-card mathoku">
+                <span class="badge weaver">Concept 4: Tactile Swipe & Match</span>
+                <div>
+                    <h2 class="game-title" style="color: var(--purple);">MATHOKU</h2>
+                    <p style="font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 800; margin-bottom: 8px;">Grid Weaver</p>
+                    <p class="game-desc">Trace seamless mathematical paths across a 5x5 checkerboard. Weave through Numbers and Operators in real time to crack active Target Vaults.</p>
+                </div>
+                <ul class="features-list">
+                    <li>Tactile ribbon swiping & live equation pill</li>
+                    <li>Checkerboard alternating topology</li>
+                    <li>Guaranteed solvable target bounties</li>
+                    <li>Bounty Hunt, Daily Weaver & Zen modes</li>
+                </ul>
+                <div class="btn-launch">
+                    Play Mathoku ➜
+                </div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

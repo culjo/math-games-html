@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FACTORIA — The Math Deckbuilder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700;800&family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="factoria-app">
+        <!-- Top Navigation / Run Bar -->
+        <header class="run-header">
+            <div class="header-left">
+                <a href="../index.html" class="nav-btn" title="Back to Arcade Hub">⮌ Arcade</a>
+                <div class="brand">
+                    <span class="logo-icon">⚙️</span>
+                    <span class="logo-title">FACTORIA</span>
+                    <span class="logo-sub">ROGUE-LITE MATH ENGINE</span>
+                </div>
+            </div>
+
+            <div class="header-center">
+                <div class="run-badge" id="sector-indicator">
+                    <span class="badge-label">SECTOR</span>
+                    <span class="badge-value" id="sector-val">1</span>
+                    <span class="badge-sep">/</span>
+                    <span class="badge-sub" id="vault-type-val">LOW VAULT</span>
+                </div>
+                <div class="run-badge money-badge">
+                    <span class="badge-icon">💰</span>
+                    <span class="badge-value" id="cash-val">$10</span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <button id="btn-deck" class="tool-btn" title="Inspect Deck">
+                    🎴 Deck (<span id="deck-count">24</span>)
+                </button>
+                <button id="btn-sound" class="tool-btn icon-only" title="Toggle Audio">
+                    <span id="sound-icon">🔊</span>
+                </button>
+                <button id="btn-help" class="tool-btn icon-only" title="How to Play / Codex">
+                    <span>❓</span>
+                </button>
+                <button id="btn-restart" class="tool-btn icon-only" title="New Run">
+                    <span>🔄</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Rogue-lite Arena -->
+        <main class="arena">
+            <!-- Active Vault Banner (Enemy Lock) -->
+            <section class="vault-container">
+                <div class="vault-header">
+                    <div class="vault-info">
+                        <span class="vault-eyebrow" id="vault-tier-title">SECURITY VAULT #01</span>
+                        <h2 class="vault-name" id="vault-name">CIPHER GATE ALPHA</h2>
+                    </div>
+                    <div class="vault-reward">
+                        <span class="reward-label">Bounty:</span>
+                        <span class="reward-val" id="vault-bounty-val">+$5</span>
+                    </div>
+                </div>
+
+                <!-- Boss Debuff Alert (hidden unless Boss Vault) -->
+                <div id="boss-alert" class="boss-alert" style="display: none;">
+                    <span class="alert-icon">⚠️</span>
+                    <span class="alert-text" id="boss-alert-text">BOSS PROTOCOL: The Prime Siphon (Primes score 0 chips)</span>
+                </div>
+
+                <!-- Target Score Gauge & Progress -->
+                <div class="gauge-section">
+                    <div class="gauge-labels">
+                        <div class="gauge-current">
+                            <span class="stat-lbl">CURRENT SCORE</span>
+                            <span class="stat-num" id="current-score-val">0</span>
+                        </div>
+                        <div class="gauge-target">
+                            <span class="stat-lbl">TARGET TO BREACH</span>
+                            <span class="stat-num target-num" id="target-score-val">300</span>
+                        </div>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="vault-progress-fill" style="width: 0%;"></div>
+                        <div class="progress-glow"></div>
+                    </div>
+                </div>
+
+                <!-- Resource Pips: Hands & Discards -->
+                <div class="vault-resources">
+                    <div class="resource-pill">
+                        <span class="res-label">HANDS LEFT:</span>
+                        <span class="res-num" id="hands-val">4</span>
+                        <div class="res-pips" id="hands-pips">
+                            <span class="pip active"></span>
+                            <span class="pip active"></span>
+                            <span class="pip active"></span>
+                            <span class="pip active"></span>
+                        </div>
+                    </div>
+                    <div class="resource-pill">
+                        <span class="res-label">DISCARDS LEFT:</span>
+                        <span class="res-num" id="discards-val">3</span>
+                        <div class="res-pips" id="discards-pips">
+                            <span class="pip active"></span>
+                            <span class="pip active"></span>
+                            <span class="pip active"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Relics / Engine Modules Tray (Balatro-style Jokers) -->
+            <section class="modules-section">
+                <div class="section-title-bar">
+                    <span class="section-tag">ENGINE MODULES</span>
+                    <span class="slot-counter"><span id="active-relics-count">0</span> / 5 SLOTS</span>
+                </div>
+                <div class="relics-tray" id="relics-tray">
+                    <!-- Relics populated dynamically -->
+                </div>
+            </section>
+
+            <!-- Equation Assembly Rail (Staging Area) -->
+            <section class="assembly-section">
+                <div class="assembly-top-bar">
+                    <div class="formula-preview-pill" id="formula-pill">
+                        <span class="preview-empty">Stage numbers and operators from your hand to build an equation</span>
+                    </div>
+                    <div class="assembly-controls">
+                        <button id="btn-clear-staged" class="btn-subtle" title="Recall all cards to hand">↺ Recall All</button>
+                    </div>
+                </div>
+
+                <!-- Equation Drop Rail -->
+                <div class="equation-rail" id="equation-rail">
+                    <!-- Staged cards placed here -->
+                    <div class="rail-placeholder" id="rail-placeholder">
+                        Drag or click cards from your hand into this rail
+                    </div>
+                </div>
+
+                <!-- Real-time Score Breakdown Pill -->
+                <div class="score-breakdown-panel" id="breakdown-panel">
+                    <div class="breakdown-chip-box">
+                        <span class="bd-label">BASE / CHIPS</span>
+                        <span class="bd-val" id="bd-chips">0</span>
+                    </div>
+                    <span class="bd-op">×</span>
+                    <div class="breakdown-mult-box">
+                        <span class="bd-label">MULTIPLIER</span>
+                        <span class="bd-val" id="bd-mult">1</span>
+                    </div>
+                    <span class="bd-op">=</span>
+                    <div class="breakdown-total-box">
+                        <span class="bd-label">HAND SCORE</span>
+                        <span class="bd-val highlight" id="bd-total">0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Player Hand Area & Action Controls -->
+            <section class="hand-section">
+                <div class="hand-controls">
+                    <button id="btn-discard" class="btn-action btn-discard" disabled>
+                        <span>🗑️ Discard</span>
+                        <span class="selected-count" id="discard-count-badge">(0)</span>
+                    </button>
+                    <button id="btn-submit" class="btn-action btn-submit" disabled>
+                        <span>⚡ Submit Equation</span>
+                    </button>
+                </div>
+
+                <div class="cards-hand" id="cards-hand">
+                    <!-- Dealt hand cards populated dynamically -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Modals & Overlays -->
+
+        <!-- 1. Factoria Depot (Shop Screen between Vaults) -->
+        <div id="modal-shop" class="overlay shop-overlay" style="display: none;">
+            <div class="shop-container">
+                <div class="shop-header">
+                    <div class="shop-title-group">
+                        <span class="shop-subtitle">SECTOR UPGRADE TERMINAL</span>
+                        <h2 class="shop-title">FACTORIA DEPOT</h2>
+                    </div>
+                    <div class="shop-funds">
+                        <span class="funds-label">Available Capital:</span>
+                        <span class="funds-amount" id="shop-cash-val">$15</span>
+                    </div>
+                </div>
+
+                <div class="shop-grid">
+                    <!-- Column 1: Relics For Sale -->
+                    <div class="shop-column">
+                        <h3 class="col-title">⚙️ Engine Modules (Relics)</h3>
+                        <div class="shop-items-list" id="shop-relics-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Boosters & Consumables -->
+                    <div class="shop-column">
+                        <h3 class="col-title">📦 Data Packs & Card Boosters</h3>
+                        <div class="shop-items-list" id="shop-boosters-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shop-footer">
+                    <button id="btn-shop-reroll" class="btn-secondary">
+                        🎲 Restock Depot (<span id="reroll-cost">$5</span>)
+                    </button>
+                    <button id="btn-next-vault" class="btn-primary btn-large">
+                        Enter Next Vault ➜
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Booster Pack Opening Modal -->
+        <div id="modal-booster" class="overlay" style="display: none;">
+            <div class="booster-modal-card">
+                <h2 id="booster-modal-title">📦 Number Booster Pack</h2>
+                <p class="booster-modal-desc" id="booster-modal-desc">Select 1 card to add permanently to your deck:</p>
+                <div class="booster-cards-row" id="booster-cards-row">
+                    <!-- 3 choice cards -->
+                </div>
+                <button id="btn-skip-booster" class="btn-subtle">Skip / Discard Pack</button>
+            </div>
+        </div>
+
+        <!-- 3. Deck Inspector Modal -->
+        <div id="modal-deck" class="overlay" style="display: none;">
+            <div class="deck-modal-card">
+                <div class="modal-header">
+                    <h2>🎴 Current Deck Inventory (<span id="inspect-deck-count">24</span> Cards)</h2>
+                    <button id="btn-close-deck" class="btn-close">&times;</button>
+                </div>
+                <div class="deck-stats-summary" id="deck-stats-summary">
+                    <!-- Breakdown: numbers vs operators, avg value -->
+                </div>
+                <div class="deck-cards-grid" id="deck-cards-grid">
+                    <!-- All cards in deck -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. How to Play & Codex Modal -->
+        <div id="modal-help" class="overlay" style="display: none;">
+            <div class="help-modal-card">
+                <div class="modal-header">
+                    <h2>⚙️ Factoria Codex: Guide & Math Mechanics</h2>
+                    <button id="btn-close-help" class="btn-close">&times;</button>
+                </div>
+                <div class="help-content">
+                    <div class="codex-section">
+                        <h3>1. The Objective</h3>
+                        <p>Construct mathematical equations using your hand of Number and Operator cards to reach or surpass each Vault's <strong>Target Score</strong> before running out of Hands.</p>
+                    </div>
+                    <div class="codex-section">
+                        <h3>2. Hand Scoring Formula</h3>
+                        <div class="formula-box">
+                            Hand Score = (Equation Result + Flat Chips) × (Base Mult + Bonus Mult) × X-Mult
+                        </div>
+                        <p>The resulting value of your equation forms your starting <strong>Base Chips</strong>. Then, each played card and active Engine Module adds Chips, Multipliers, or multiplicative <strong>X-Mult</strong>.</p>
+                    </div>
+                    <div class="codex-section">
+                        <h3>3. Engine Modules (Relics)</h3>
+                        <p>You can hold up to <strong>5 Engine Modules</strong>. They trigger from left to right on every valid hand! Build synergies such as:</p>
+                        <ul>
+                            <li><strong>Even-Steven:</strong> Multiplies even numbers with +4 Mult.</li>
+                            <li><strong>Clean Division:</strong> Exact division with 0 remainder multiplies total score by <strong>×2.5</strong>!</li>
+                            <li><strong>Fibonacci Engine:</strong> Hitting Fibonacci totals (8, 13, 21, 34, 55, 89...) triples your score!</li>
+                        </ul>
+                    </div>
+                    <div class="codex-section">
+                        <h3>4. Card Types & Enhancements</h3>
+                        <ul>
+                            <li><strong>Numbers (1-20+):</strong> Provide base value. Primes, Evens, and Squares activate specific relics.</li>
+                            <li><strong>Operators (+, -, ×, ÷, ^):</strong> Standard arithmetic. Valid equations must alternate correctly (e.g. <code>[5] [×] [4] [+] [2] = 22</code>).</li>
+                            <li><strong>Card Foils:</strong> Foil (+50 Chips), Holo (+10 Mult), Polychrome (×1.5 Mult).</li>
+                        </ul>
+                    </div>
+                </div>
+                <button id="btn-start-playing" class="btn-primary btn-large">Understood — Let's Craft</button>
+            </div>
+        </div>
+
+        <!-- 5. Game Over Modal -->
+        <div id="modal-gameover" class="overlay" style="display: none;">
+            <div class="gameover-card">
+                <h2 class="go-title" id="go-title">SYSTEM LOCKED</h2>
+                <p class="go-subtitle" id="go-subtitle">Out of hands! The Vault failed to breach.</p>
+                <div class="go-stats">
+                    <div class="stat-box">
+                        <span class="lbl">Sectors Cleared</span>
+                        <span class="val" id="go-sectors-val">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="lbl">Total Score</span>
+                        <span class="val" id="go-score-val">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="lbl">Best Career Score</span>
+                        <span class="val" id="go-best-val">0</span>
+                    </div>
+                </div>
+                <button id="btn-try-again" class="btn-primary btn-large">Initialize New Run 🔄</button>
+            </div>
+        </div>
+
+        <!-- 6. Tooltip Floating Bubble -->
+        <div id="card-tooltip" class="card-tooltip" style="display: none;"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="audio.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

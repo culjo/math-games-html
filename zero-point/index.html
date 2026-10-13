@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZERO POINT — Quantum Math Cascade</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header>
+            <div class="brand">
+                <h1>ZERO POINT</h1>
+                <span class="tagline">Quantum Math Cascade</span>
+            </div>
+            <div class="header-controls">
+                <button id="btn-sound" class="btn-icon" aria-label="Toggle Sound" title="Sound Mute/Unmute">
+                    <svg id="icon-sound-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                    <svg id="icon-sound-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <line x1="23" y1="9" x2="17" y2="15"></line>
+                        <line x1="17" y1="9" x2="23" y2="15"></line>
+                    </svg>
+                </button>
+                <button id="btn-help" class="btn-icon" aria-label="How to Play" title="How to Play">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </button>
+                <button id="btn-restart" class="btn-icon" aria-label="Restart Game" title="Restart">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-pill">
+                <span class="label">Score</span>
+                <span id="score-val" class="value">0</span>
+            </div>
+            <div class="stat-pill">
+                <span class="label">Best</span>
+                <span id="best-val" class="value">0</span>
+            </div>
+            <div class="stat-pill combo">
+                <span class="label">Cascade</span>
+                <span id="combo-val" class="value">1x</span>
+            </div>
+        </div>
+
+        <!-- Overdrive / Singularity Frenzy Bar -->
+        <div class="overdrive-container" id="overdrive-container">
+            <div class="overdrive-header">
+                <span class="overdrive-label">⚡ Singularity Overdrive</span>
+                <span id="overdrive-percent" class="overdrive-percent">0%</span>
+            </div>
+            <div class="overdrive-bar-track">
+                <div id="overdrive-fill" class="overdrive-bar-fill"></div>
+            </div>
+            <button id="btn-overdrive" class="btn-overdrive-ready" style="display: none;">
+                🔥 UNLEASH OVERDRIVE [F] 🔥
+            </button>
+        </div>
+
+        <!-- Tactical HUD (Hold slot & Queue preview & Rise countdown) -->
+        <div class="tactical-hud">
+            <div class="hold-section">
+                <span class="tactical-label">Hold [C]</span>
+                <div id="hold-slot" class="slot hold-slot" title="Click or Press 'C' to Swap Held Orb">
+                    <span id="hold-text">-</span>
+                </div>
+            </div>
+
+            <div class="turn-counter">
+                <span class="tactical-label">Rising In</span>
+                <span id="rise-counter" class="counter-ring">5 Drops</span>
+            </div>
+
+            <div class="queue-section">
+                <span class="tactical-label">Next</span>
+                <div class="queue-preview">
+                    <div id="next-slot-1" class="slot next-slot"></div>
+                    <div id="next-slot-2" class="slot next-slot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canvas Game Arena -->
+        <div class="canvas-wrapper" id="canvas-container">
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <!-- Controls Hint -->
+        <div class="controls-bar">
+            <span class="desktop-hint">🖱️ Move mouse / [←][→] &bull; Click/[Space] drop &bull; [C] hold &bull; [F] frenzy</span>
+            <div class="touch-action-buttons">
+                <button id="btn-touch-hold" class="action-btn">Hold [C]</button>
+                <button id="btn-touch-frenzy" class="action-btn" style="display: none; background: linear-gradient(135deg, var(--purple), var(--gold)); color: #000; font-weight: 900;">⚡ Frenzy!</button>
+                <button id="btn-touch-drop" class="action-btn btn-primary">Drop Orb</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- How to Play Modal -->
+    <div id="modal-help" class="overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>How to Play</h2>
+                <button id="btn-close-help" class="btn-close">&times;</button>
+            </div>
+
+            <div class="guide-step">
+                <div class="badge-demo zero">🌟</div>
+                <div>
+                    <h3>1. Tiered Supernova Detonations</h3>
+                    <p>Opposites annihilate to 0! Larger numbers unleash exponentially bigger blasts:
+                    <br>&bull; <strong>±1:</strong> Micro pop
+                    <br>&bull; <strong>±2:</strong> ⚡ Pulse Shockwave
+                    <br>&bull; <strong>±4:</strong> ⚡ Cross Laser (blasts full row & column!)
+                    <br>&bull; <strong>±8+:</strong> 🌟 Supernova (obliterates 3&times;3 crater!)
+                    </p>
+                </div>
+            </div>
+
+            <div class="guide-step">
+                <div class="badge-demo cyan">+4</div>
+                <div>
+                    <h3>2. Same-Sign Synthesis (Craft Supernovas!)</h3>
+                    <p>Touching identical tiles fuse together (<strong>+2 & +2 = +4</strong>, <strong>+4 & +4 = +8</strong>). Build higher numbers to unleash screen-clearing Cross Lasers and Supernovas!</p>
+                </div>
+            </div>
+
+            <div class="guide-step">
+                <div class="badge-demo" style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(188, 19, 254, 0.3)); border: 2px solid var(--gold); color: #fff;">⚡</div>
+                <div>
+                    <h3>3. Singularity Overdrive & Frenzy</h3>
+                    <p>Build your energy meter to <strong>100%</strong> with drops, syntheses, and Zero Point detonations. Press <strong>[F]</strong> or tap the glowing button to unleash <strong>Singularity Frenzy</strong> (3 rounds of devastating super-weapons: <strong>⚫ Vortex</strong> column crush, <strong>🌟 Nova Core</strong>, and <strong>💥 Antimatter Nuke</strong>)!</p>
+                </div>
+            </div>
+
+            <div class="guide-step">
+                <div class="badge-demo purple">±</div>
+                <div>
+                    <h3>4. Quantum Special Orbs</h3>
+                    <p>Watch for special drops: <strong>[±] Invert</strong> flips signs, <strong>[÷2] Fission</strong> halves a number, <strong>[×2] Amplify</strong> doubles it, and <strong>[0] Singularity</strong> clears surrounding areas!</p>
+                </div>
+            </div>
+
+            <div class="guide-step">
+                <div class="badge-demo" style="background:#222; border:1px solid #666; color:#aaa;">#</div>
+                <div>
+                    <h3>5. Watch the Ceiling!</h3>
+                    <p>Every 5 drops, a new row of dormant Dark Matter rises from the bottom. Shatter them with Zero Point blasts. Don't let blocks cross the red danger line!</p>
+                </div>
+            </div>
+
+            <button id="btn-start" class="btn-large">Enter Collider</button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="modal-gameover" class="overlay">
+        <div class="modal-card" style="text-align: center;">
+            <h2 style="font-size: 1.8rem; color: var(--danger);">CONTAINMENT BREACH</h2>
+            <p style="color: var(--text-muted);">The reactor exceeded critical threshold capacity!</p>
+
+            <div class="game-over-stats">
+                <div class="game-over-card">
+                    <span class="label">Final Score</span>
+                    <div id="go-score" class="num">0</div>
+                </div>
+                <div class="game-over-card">
+                    <span class="label">Best Score</span>
+                    <div id="go-best" class="num">0</div>
+                </div>
+                <div class="game-over-card">
+                    <span class="label">Max Cascade</span>
+                    <div id="go-cascade" class="num">1x</div>
+                </div>
+                <div class="game-over-card">
+                    <span class="label">Zero Points Triggered</span>
+                    <div id="go-zeroes" class="num">0</div>
+                </div>
+            </div>
+
+            <button id="btn-play-again" class="btn-large">Reignite Reactor</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="audio.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

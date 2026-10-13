@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MATHOKU — Grid Weaver</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-app">
+        <!-- Header -->
+        <header>
+            <div class="brand-group">
+                <h1>MATHOKU</h1>
+                <span class="subtitle">Tactile Grid Weaver</span>
+            </div>
+            <div class="nav-buttons">
+                <button id="btn-sound" class="icon-btn" aria-label="Toggle Sound" title="Sound Mute/Unmute">
+                    <svg id="icon-sound-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                    <svg id="icon-sound-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <line x1="23" y1="9" x2="17" y2="15"></line>
+                        <line x1="17" y1="9" x2="23" y2="15"></line>
+                    </svg>
+                </button>
+                <button id="btn-help" class="icon-btn" aria-label="How to Play" title="How to Play">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </button>
+                <button id="btn-reset" class="icon-btn" aria-label="Restart Board" title="New Board">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mode Switcher -->
+        <div class="mode-tabs">
+            <button id="tab-bounty" class="tab-btn active">Bounty Hunt</button>
+            <button id="tab-daily" class="tab-btn">Daily Weaver</button>
+            <button id="tab-zen" class="tab-btn">Zen Endless</button>
+        </div>
+
+        <!-- Target Bounties HUD -->
+        <div class="targets-container">
+            <div class="targets-header">
+                <span>Active Target Vaults</span>
+                <span id="bounty-progress">0 / 3 Solved</span>
+            </div>
+            <div class="target-cards-row">
+                <div id="target-card-0" class="target-card">
+                    <span class="reward">+300 pts</span>
+                    <span class="val">--</span>
+                </div>
+                <div id="target-card-1" class="target-card">
+                    <span class="reward">+500 pts</span>
+                    <span class="val">--</span>
+                </div>
+                <div id="target-card-2" class="target-card">
+                    <span class="reward">+800 pts</span>
+                    <span class="val">--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Live Equation Pill -->
+        <div class="equation-pill-container">
+            <div id="equation-pill" class="equation-pill">
+                <span id="equation-expr">Trace a path to begin</span>
+            </div>
+        </div>
+
+        <!-- The Canvas Game Arena -->
+        <div class="board-wrapper" id="board-container">
+            <canvas id="mathoku-canvas"></canvas>
+        </div>
+
+        <!-- Bottom Stats & Helper Hint -->
+        <div class="bottom-bar">
+            <div class="stat-item">
+                <span class="lbl">Score</span>
+                <span id="stat-score" class="num">0</span>
+            </div>
+            <div class="stat-item" style="text-align: center;">
+                <span class="lbl" id="stat-goal-label">Moves Left</span>
+                <span id="stat-moves" class="num">15</span>
+            </div>
+            <div class="stat-item" style="text-align: right;">
+                <span class="lbl">Best</span>
+                <span id="stat-best" class="num">0</span>
+            </div>
+        </div>
+
+        <div class="instruction-hint">
+            <span>✨ Drag: [Number] ➜ [Operator] ➜ [Number] &bull; Release to solve</span>
+        </div>
+    </div>
+
+    <!-- How to Play Modal -->
+    <div id="modal-help" class="overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>How to Play</h2>
+                <button id="btn-close-help" class="btn-close">&times;</button>
+            </div>
+
+            <div class="how-to-card">
+                <div class="badge-glyph num">5</div>
+                <div>
+                    <h3>1. Weave the Path</h3>
+                    <p>Press and drag through adjacent tiles. Paths naturally alternate between <strong>Numbers</strong> and <strong>Operators</strong>: <code>[5] ➜ [×] ➜ [3] ➜ [+] ➜ [4]</code>.</p>
+                </div>
+            </div>
+
+            <div class="how-to-card">
+                <div class="badge-glyph op">×</div>
+                <div>
+                    <h3>2. Left-to-Right Chaining</h3>
+                    <p>Calculations evaluate progressively as you drag: <code>(5 × 3) + 4 = 19</code>. The floating pill shows the live result in real time!</p>
+                </div>
+            </div>
+
+            <div class="how-to-card">
+                <div class="badge-glyph" style="background:rgba(255,214,0,0.15); border:1.5px solid #ffd600; color:#ffd600;">🎯</div>
+                <div>
+                    <h3>3. Crack Target Vaults</h3>
+                    <p>Match any of the 3 active target numbers at the top! When a path matches a target, it glows <strong>Electric Gold</strong>. Release to shatter the tiles and collect big bounty points!</p>
+                </div>
+            </div>
+
+            <div class="how-to-card">
+                <div class="badge-glyph" style="background:rgba(0,230,118,0.15); border:1.5px solid #00e676; color:#00e676;">↩</div>
+                <div>
+                    <h3>4. Tactile Backtracking</h3>
+                    <p>Made a wrong turn? Simply drag your finger backward to the previous tile to undo steps without breaking your streak!</p>
+                </div>
+            </div>
+
+            <button id="btn-start" class="btn-action-main">Start Weaving</button>
+        </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div id="modal-win" class="overlay">
+        <div class="modal-box" style="text-align: center;">
+            <h2 id="win-title" style="font-size: 1.8rem; color: var(--accent-gold);">VAULT UNLOCKED!</h2>
+            <p id="win-subtitle" style="color: var(--text-dim);">All target equations solved flawlessly!</p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0;">
+                <div style="background: rgba(255,255,255,0.04); padding: 12px; border-radius: 12px;">
+                    <span style="font-size:0.65rem; color:var(--text-dim); text-transform:uppercase; font-weight:800;">Round Score</span>
+                    <div id="win-score" style="font-size:1.6rem; font-weight:900; color:var(--primary-cyan);">0</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.04); padding: 12px; border-radius: 12px;">
+                    <span style="font-size:0.65rem; color:var(--text-dim); text-transform:uppercase; font-weight:800;">Longest Chain</span>
+                    <div id="win-longest" style="font-size:1.6rem; font-weight:900; color:var(--accent-gold);">0 Tiles</div>
+                </div>
+            </div>
+
+            <button id="btn-next-level" class="btn-action-main">Next Level</button>
+        </div>
+    </div>
+
+    <!-- Game Scripts -->
+    <script src="audio.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

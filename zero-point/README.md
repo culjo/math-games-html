@@ -1,0 +1,70 @@
+# ZERO POINT — Quantum Math Cascade
+
+A tactile, fast-paced arithmetic arcade puzzle game where positive matter and negative anti-matter collide to reach equilibrium.
+
+Built with **HTML5 Canvas**, **Web Audio API** (procedural synthesis, no external assets required), and modern responsive design.
+
+---
+
+## 🕹️ The Core Mechanics
+
+### 1. Tiered Supernova Detonations (Bigger Numbers = Bigger Blasts!)
+When two adjacent blocks sum to **`0`**, they trigger a **Zero Point Detonation**. The blast power, visual effects, and radius scale directly with the magnitude of the colliding numbers:
+
+* **Tier 1 (±1):** Micro pop (clears the 2 tiles + 14 sparks).
+* **Tier 2 (±2, ±3):** ⚡ **Pulse Shockwave** (clears tiles + deals 1 damage to orthogonal Dark Matter).
+* **Tier 3 (±4 to ±7):** ⚡ **Cross Laser Blast** (fires radiant horizontal and vertical ion beams that blast across the **entire row and column**, damaging all Dark Matter in its cross path!).
+* **Tier 4 (±8 to ±15):** 🌟 **SUPERNOVA CRATER** (detonates a full **3×3 area** with dual shockwaves, screen flash, and heavy screen shake, obliterating obstacles in the blast zone!).
+* **Tier 5 (±16+):** 💥 **HYPERSPACE SINGULARITY** (obliterates the entire bottom rows, clears all Dark Matter, and releases a screen-wide blinding shockwave!).
+
+### 2. Same-Sign Synthesis (Crafting Supernovas!)
+When two touching tiles have the **same value and sign** (e.g. `+2 & +2 = +4`, or `+4 & +4 = +8`), they fuse together!
+* Synthesizing higher numbers is how you actively **craft Supernovas** to clear massive board space!
+
+### 3. Singularity Overdrive & Frenzy Meter (Black Hole Arsenal!)
+Every drop, synthesis (+8%), and Zero Point detonation (+18% to +50%) charges the **Singularity Overdrive Gauge** (0% to 100%).
+* **Triggering Frenzy**: When full, press **`[F]`** or tap the glowing **⚡ Unleash Frenzy!** button.
+* **Frenzy Super-Weapons (3 consecutive tactical turns)**:
+  1. **`[⚫ VORTEX]` Black Hole Orb**: Sucks in and annihilates **every single tile in the target column** (vaporizing numbers and Dark Matter cores alike) and deals 1 damage to neighboring Dark Matter columns!
+  2. **`[🌟 NOVA]` Supernova Core**: Detonates an immediate Tier 4 Supernova Crater across a **3×3 blast area**!
+  3. **`[💥 NUKE]` Antimatter Nuke**: Unleashes a high-explosive **3×3 area blast**!
+
+### 4. Cascading Chain Reactions
+When blocks clear and gravity pulls the board downward, newly touching neighbors automatically evaluate.
+* `2x CASCADE!` `3x CASCADE!` `SINGULARITY STRIKE!`
+* Score multiplier scales exponentially with combo depth.
+
+### 5. Quantum Modifiers
+Rare special orbs appear in your launcher queue:
+* **`[±] Invert`**: Flips positive to negative or negative to positive.
+* **`[÷2] Fission`**: Halves the targeted tile.
+* **`[×2] Amplify`**: Doubles the targeted tile.
+* **`[0] Singularity Core`**: Detonates a 3x3 radius immediately.
+
+### 6. Containment Threshold & Pressure
+Every **5 drops**, dormant **Dark Matter** rises from the reactor bottom. Detonate Zero Points next to Dark Matter to crack and shatter them! If blocks cross the top red danger line, a Containment Breach (Game Over) occurs.
+
+---
+
+## 🎮 Controls
+
+| Action | Desktop Keyboard / Mouse | Mobile / Touch |
+| :--- | :--- | :--- |
+| **Aim Column** | Move Mouse or `[←]` `[→]` / `[A]` `[D]` | Drag / Tap Column |
+| **Drop Orb** | Click or `[Space]` / `[Enter]` / `[↓]` | Tap **Drop Orb** button |
+| **Swap Hold** | Press `[C]` or Click Hold Box | Tap **Hold [C]** button |
+| **Unleash Frenzy** | Press `[F]` or Click **⚡ Frenzy!** | Tap **⚡ Frenzy!** button |
+| **Restart** | Press `[R]` or Click Refresh Icon | Refresh Icon |
+
+---
+
+## 🚀 Running the Game
+
+You can run it with any static web server:
+
+```bash
+# From this directory:
+python3 -m http.server 8080
+```
+
+Then open `http://localhost:8080` or `http://localhost:8080/zero-point/` in your browser!
