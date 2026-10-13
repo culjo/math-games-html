@@ -22,7 +22,7 @@ When two touching tiles have the **same value and sign** (e.g. `+2 & +2 = +4`, o
 * Synthesizing higher numbers is how you actively **craft Supernovas** to clear massive board space!
 
 ### 3. Singularity Overdrive & Frenzy Meter (Black Hole Arsenal!)
-Every drop, synthesis (+8%), and Zero Point detonation (+18% to +50%) charges the **Singularity Overdrive Gauge** (0% to 100%).
+Skillful play—same-sign synthesis (+2%), Zero Point detonations (+2% to +18%), and Bounties—charges the **Singularity Overdrive Gauge** (0% to 100%).
 * **Triggering Frenzy**: When full, press **`[F]`** or tap the glowing **⚡ Unleash Frenzy!** button.
 * **Frenzy Super-Weapons (3 consecutive tactical turns)**:
   1. **`[⚫ VORTEX]` Black Hole Orb**: Sucks in and annihilates **every single tile in the target column** (vaporizing numbers and Dark Matter cores alike) and deals 1 damage to neighboring Dark Matter columns!
@@ -38,7 +38,7 @@ Spend a Quantum Swap Token to swap **any two adjacent tiles** on the board.
 ### 5. In-Run Tactical Micro-Bounties
 Dynamic short-term objectives appear on the HUD strip:
 * **Mission Types**: Cross Laser Blasts (Tier 3+), Supernova Detonations (Tier 4+), Double Fusions (synthesizing identical tiles), Cascade Surges (2x+ combos), Dark Matter Breaches, and Singularity Overdrive triggers.
-* **Rewards**: Complete bounties for hefty bonus score (+400 to +800 PTS), instant Overdrive recharge (+20% to +35%), and extra **Quantum Swap Tokens**!
+* **Rewards**: Complete bounties for hefty bonus score (+400 to +800 PTS), instant Overdrive recharge (+6% to +12%), and extra **Quantum Swap Tokens**!
 
 ### 6. Cascading Chain Reactions
 When blocks clear and gravity pulls the board downward, newly touching neighbors automatically evaluate.

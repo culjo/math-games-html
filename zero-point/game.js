@@ -271,7 +271,6 @@
         if (isProcessing || isGameOver || activeProjectile) return;
 
         sfx.init();
-        addOverdriveCharge(3);
 
         dropsSinceSwapCharge++;
         if (dropsSinceSwapCharge >= 8) {
@@ -374,11 +373,6 @@
         if (isFrenzyActive) {
             frenzyTurnsRemaining--;
             overdriveCharge = Math.max(0, Math.round((frenzyTurnsRemaining / 3) * 100));
-            if (frenzyTurnsRemaining <= 0) {
-                isFrenzyActive = false;
-                overdriveCharge = 0;
-                addFloatingText('Frenzy Concluded', canvas.width / (2 * dpr), boardOffsetY + cellH * 3, '#8892b0', 1.1);
-            }
         }
 
         // Advance queue
@@ -528,6 +522,12 @@
             }
         }
 
+        if (isFrenzyActive && frenzyTurnsRemaining <= 0) {
+            isFrenzyActive = false;
+            overdriveCharge = 0;
+            addFloatingText('Frenzy Concluded', canvas.width / (2 * dpr), boardOffsetY + cellH * 3, '#8892b0', 1.1);
+        }
+
         checkGameOver();
         isProcessing = false;
         updateHUD();
@@ -609,7 +609,7 @@
                             boardOffsetY + r * cellH, 
                             fusedVal > 0 ? 'var(--cyan)' : 'var(--orange)');
                         addScore(100 * (chainStep + 1));
-                        addOverdriveCharge(8);
+                        addOverdriveCharge(2);
                         checkBountyProgress('synthesis', 1);
                         return true;
                     }
@@ -630,7 +630,7 @@
                             boardOffsetY + (r + 0.5) * cellH, 
                             fusedVal > 0 ? 'var(--cyan)' : 'var(--orange)');
                         addScore(100 * (chainStep + 1));
-                        addOverdriveCharge(8);
+                        addOverdriveCharge(2);
                         checkBountyProgress('synthesis', 1);
                         return true;
                     }
@@ -749,7 +749,10 @@
         const baseScore = 200 * Math.pow(2, tier - 1);
         addScore(baseScore * combo * (chainStep + 1));
 
-        const chargeBonus = Math.round((10 + tier * 8) * (1 + (combo - 1) * 0.25));
+        // Balanced Overdrive charge: Tier 1 (+2%), Tier 2 (+4%), Tier 3 (+7%), Tier 4 (+12%), Tier 5 (+18%)
+        const tierChargeTable = [0, 2, 4, 7, 12, 18];
+        const baseCharge = tierChargeTable[tier] || 2;
+        const chargeBonus = Math.round(baseCharge * (1 + (combo - 1) * 0.25));
         addOverdriveCharge(chargeBonus);
 
         // Tactical Bounty checks & Supernova Token Bonus
@@ -968,7 +971,7 @@
             target: 1,
             rewardScore: 500,
             rewardSwap: 1,
-            rewardOvd: 25,
+            rewardOvd: 8,
             rewardText: '+500 PTS • +1 SWAP'
         },
         {
@@ -978,7 +981,7 @@
             target: 1,
             rewardScore: 800,
             rewardSwap: 1,
-            rewardOvd: 35,
+            rewardOvd: 12,
             rewardText: '+800 PTS • +1 SWAP'
         },
         {
@@ -988,7 +991,7 @@
             target: 2,
             rewardScore: 400,
             rewardSwap: 1,
-            rewardOvd: 20,
+            rewardOvd: 6,
             rewardText: '+400 PTS • +1 SWAP'
         },
         {
@@ -998,7 +1001,7 @@
             target: 1,
             rewardScore: 600,
             rewardSwap: 1,
-            rewardOvd: 25,
+            rewardOvd: 8,
             rewardText: '+600 PTS • +1 SWAP'
         },
         {
@@ -1008,7 +1011,7 @@
             target: 3,
             rewardScore: 500,
             rewardSwap: 1,
-            rewardOvd: 25,
+            rewardOvd: 8,
             rewardText: '+500 PTS • +1 SWAP'
         },
         {
@@ -1018,7 +1021,7 @@
             target: 1,
             rewardScore: 750,
             rewardSwap: 1,
-            rewardOvd: 30,
+            rewardOvd: 0,
             rewardText: '+750 PTS • +1 SWAP'
         }
     ];
