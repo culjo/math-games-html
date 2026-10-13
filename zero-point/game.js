@@ -1714,24 +1714,132 @@
         return orb.value > 0 ? 'pos' : 'neg';
     }
 
+    function drawLandingCellReticle(x, y, w, h, flavor) {
+        ctx.save();
+        const cx = x + w / 2;
+        const cy = y + h / 2;
+        const pulse = 0.88 + Math.sin(Date.now() / 220) * 0.12;
+
+        // 1. Radiant luminous landing pad (lighter background color)
+        let coreColor = 'rgba(255, 255, 255, 0.38)';
+        let edgeColor = 'rgba(0, 242, 254, 0.24)';
+        let strokeColor = '#00f2fe';
+
+        if (flavor === 'neg') {
+            edgeColor = 'rgba(255, 78, 80, 0.26)';
+            strokeColor = '#ff4e50';
+        } else if (flavor === 'synth') {
+            coreColor = 'rgba(255, 255, 255, 0.48)';
+            edgeColor = 'rgba(0, 242, 254, 0.32)';
+            strokeColor = '#00f2fe';
+        } else if (flavor === 'zero') {
+            coreColor = 'rgba(255, 255, 255, 0.60)';
+            edgeColor = 'rgba(0, 242, 254, 0.42)';
+            strokeColor = '#ffffff';
+        } else if (flavor === 'blackhole') {
+            coreColor = 'rgba(255, 255, 255, 0.45)';
+            edgeColor = 'rgba(188, 19, 254, 0.35)';
+            strokeColor = '#ffd700';
+        } else if (flavor === 'supernova_core') {
+            coreColor = 'rgba(255, 255, 255, 0.50)';
+            edgeColor = 'rgba(255, 215, 0, 0.35)';
+            strokeColor = '#ffd700';
+        } else if (flavor === 'antimatter_nuke') {
+            coreColor = 'rgba(255, 255, 255, 0.50)';
+            edgeColor = 'rgba(255, 78, 80, 0.35)';
+            strokeColor = '#ff4e50';
+        } else if (flavor === 'special') {
+            coreColor = 'rgba(255, 255, 255, 0.42)';
+            edgeColor = 'rgba(196, 113, 237, 0.32)';
+            strokeColor = '#c471ed';
+        }
+
+        const padGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, Math.max(w, h) * 0.7);
+        padGrad.addColorStop(0, coreColor);
+        padGrad.addColorStop(0.65, edgeColor);
+        padGrad.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+
+        ctx.fillStyle = padGrad;
+        ctx.beginPath();
+        ctx.roundRect(x + 2, y + 2, w - 4, h - 4, 10);
+        ctx.fill();
+
+        // 2. Glowing perimeter border
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 1.8;
+        ctx.setLineDash([4, 4]);
+        ctx.shadowColor = strokeColor;
+        ctx.shadowBlur = 8 * pulse;
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 3. High-tech bright white corner targeting brackets
+        const bracketLen = Math.min(10, w * 0.22);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2.4;
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 6 * pulse;
+
+        // Top-Left
+        ctx.beginPath();
+        ctx.moveTo(x + 3, y + 3 + bracketLen);
+        ctx.lineTo(x + 3, y + 3);
+        ctx.lineTo(x + 3 + bracketLen, y + 3);
+        ctx.stroke();
+
+        // Top-Right
+        ctx.beginPath();
+        ctx.moveTo(x + w - 3 - bracketLen, y + 3);
+        ctx.lineTo(x + w - 3, y + 3);
+        ctx.lineTo(x + w - 3, y + 3 + bracketLen);
+        ctx.stroke();
+
+        // Bottom-Left
+        ctx.beginPath();
+        ctx.moveTo(x + 3, y + h - 3 - bracketLen);
+        ctx.lineTo(x + 3, y + h - 3);
+        ctx.lineTo(x + 3 + bracketLen, y + h - 3);
+        ctx.stroke();
+
+        // Bottom-Right
+        ctx.beginPath();
+        ctx.moveTo(x + w - 3 - bracketLen, y + h - 3);
+        ctx.lineTo(x + w - 3, y + h - 3);
+        ctx.lineTo(x + w - 3, y + h - 3 - bracketLen);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
     function drawAimerAndPreview() {
         if (isGameOver || isSwapModeActive) return;
         const col = aimCol;
         const centerX = boardOffsetX + col * cellW + cellW / 2;
 
-        // Column highlight beam
+        // Column highlight beam (lighter & luminous to guide eye down the board)
         if (currentOrb && currentOrb.subType === 'blackhole') {
-            ctx.fillStyle = 'rgba(188, 19, 254, 0.12)';
+            const beamGrad = ctx.createLinearGradient(0, boardOffsetY, 0, boardOffsetY + cellH * ROWS);
+            beamGrad.addColorStop(0, 'rgba(255, 215, 0, 0.12)');
+            beamGrad.addColorStop(1, 'rgba(188, 19, 254, 0.22)');
+            ctx.fillStyle = beamGrad;
         } else {
-            ctx.fillStyle = 'rgba(0, 242, 254, 0.035)';
+            const isNeg = currentOrb && currentOrb.value < 0;
+            const beamGrad = ctx.createLinearGradient(0, boardOffsetY, 0, boardOffsetY + cellH * ROWS);
+            beamGrad.addColorStop(0, 'rgba(255, 255, 255, 0.08)');
+            beamGrad.addColorStop(1, isNeg ? 'rgba(255, 78, 80, 0.16)' : 'rgba(0, 242, 254, 0.16)');
+            ctx.fillStyle = beamGrad;
         }
         ctx.fillRect(boardOffsetX + col * cellW, boardOffsetY, cellW, cellH * ROWS);
 
-        // Dashed trajectory beam
+        // Dashed trajectory centerline (bright and crisp)
         ctx.save();
-        ctx.setLineDash([4, 6]);
-        ctx.strokeStyle = currentOrb && currentOrb.subType === 'blackhole' ? 'rgba(255, 215, 0, 0.45)' : 'rgba(0, 242, 254, 0.25)';
-        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        const centerLineColor = currentOrb && currentOrb.subType === 'blackhole' ? 'rgba(255, 215, 0, 0.70)' :
+                                (currentOrb && currentOrb.value < 0 ? 'rgba(255, 120, 130, 0.65)' : 'rgba(100, 245, 255, 0.65)');
+        ctx.strokeStyle = centerLineColor;
+        ctx.shadowColor = centerLineColor;
+        ctx.shadowBlur = 6;
+        ctx.lineWidth = 2.2;
         ctx.beginPath();
         ctx.moveTo(centerX, cellH * 0.9);
         ctx.lineTo(centerX, boardOffsetY + cellH * ROWS);
@@ -1770,8 +1878,9 @@
 
                     const targetGhostRow = hasTop ? topRow : (landingRow >= 0 ? landingRow : 0);
                     const ghostY = boardOffsetY + targetGhostRow * cellH + cellH / 2;
-                    ctx.globalAlpha = 0.65;
-                    drawTileGraphic(centerX, ghostY, cellW - 10, cellH - 10, currentOrb.label, 'blackhole');
+                    drawLandingCellReticle(boardOffsetX + col * cellW, boardOffsetY + targetGhostRow * cellH, cellW, cellH, 'blackhole');
+                    ctx.globalAlpha = 0.85;
+                    drawTileGraphic(centerX, ghostY, cellW - 10, cellH - 10, currentOrb.label, 'blackhole', 0, true);
                     ctx.restore();
                 } else if (sub === 'supernova_core' || sub === 'antimatter_nuke' || sub === 'zero') {
                     // 3x3 blast area weapon
@@ -1792,8 +1901,8 @@
                     const areaW = (cMax - cMin + 1) * cellW - 4;
                     const areaH = (rMax - rMin + 1) * cellH - 4;
 
-                    ctx.fillStyle = sub === 'supernova_core' ? 'rgba(255, 215, 0, 0.12)' :
-                                    sub === 'antimatter_nuke' ? 'rgba(255, 78, 80, 0.12)' : 'rgba(196, 113, 237, 0.12)';
+                    ctx.fillStyle = sub === 'supernova_core' ? 'rgba(255, 215, 0, 0.16)' :
+                                    sub === 'antimatter_nuke' ? 'rgba(255, 78, 80, 0.16)' : 'rgba(196, 113, 237, 0.16)';
                     ctx.fillRect(areaX, areaY, areaW, areaH);
 
                     ctx.strokeStyle = color;
@@ -1808,14 +1917,16 @@
                     const ghostY = boardOffsetY + targetR * cellH + cellH / 2;
                     ctx.fillText(textLabel, centerX, ghostY - cellH / 2 - 4);
 
-                    ctx.globalAlpha = 0.65;
-                    drawTileGraphic(centerX, ghostY, cellW - 10, cellH - 10, currentOrb.label, getOrbFlavor(currentOrb));
+                    drawLandingCellReticle(boardOffsetX + col * cellW, boardOffsetY + targetR * cellH, cellW, cellH, sub);
+                    ctx.globalAlpha = 0.85;
+                    drawTileGraphic(centerX, ghostY, cellW - 10, cellH - 10, currentOrb.label, getOrbFlavor(currentOrb), 0, true);
                     ctx.restore();
                 } else if (hasTop) {
                     // Standard modifiers (invert, div2, mul2) affecting top tile
                     const ghostY = boardOffsetY + topRow * cellH + cellH / 2;
 
                     ctx.save();
+                    drawLandingCellReticle(boardOffsetX + col * cellW, boardOffsetY + topRow * cellH, cellW, cellH, 'special');
                     ctx.strokeStyle = '#c471ed';
                     ctx.lineWidth = 2;
                     ctx.shadowColor = '#c471ed';
@@ -1824,25 +1935,31 @@
 
                     ctx.font = '800 11px Inter, sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillStyle = '#c471ed';
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowColor = '#c471ed';
+                    ctx.shadowBlur = 8;
                     const specialLabel = sub === 'invert' ? '➜ ± INVERT' :
                                          sub === 'div2' ? '➜ ÷2 FISSION' : '➜ ×2 AMPLIFY';
                     ctx.fillText(specialLabel, centerX, ghostY - cellH / 2 - 4);
 
-                    ctx.globalAlpha = 0.5;
-                    drawTileGraphic(centerX, ghostY, cellW - 10, cellH - 10, currentOrb.label, 'special');
+                    ctx.globalAlpha = 0.85;
+                    drawTileGraphic(centerX, ghostY, cellW - 10, cellH - 10, currentOrb.label, 'special', 0, true);
                     ctx.restore();
                 } else if (landingRow >= 0) {
                     const ghostY = boardOffsetY + landingRow * cellH + cellH / 2;
                     ctx.save();
-                    ctx.globalAlpha = 0.45;
-                    drawTileGraphic(centerX, ghostY, cellW - 10, cellH - 10, currentOrb.label, 'special');
+                    drawLandingCellReticle(boardOffsetX + col * cellW, boardOffsetY + landingRow * cellH, cellW, cellH, 'special');
+                    ctx.globalAlpha = 0.85;
+                    drawTileGraphic(centerX, ghostY, cellW - 10, cellH - 10, currentOrb.label, 'special', 0, true);
                     ctx.restore();
                 }
             } else if (landingRow >= 0) {
                 // Ghost preview at landingRow
                 const ghostY = boardOffsetY + landingRow * cellH + cellH / 2;
+                const cellLeft = boardOffsetX + col * cellW;
+                const cellTop = boardOffsetY + landingRow * cellH;
                 const orbVal = currentOrb.value;
+                const orbFlavor = getOrbFlavor(currentOrb);
 
                 // Check neighbors: below, left, right
                 const neighbors = [];
@@ -1867,6 +1984,9 @@
                     }
                 }
 
+                // Draw lighter luminous landing cell reticle pad!
+                drawLandingCellReticle(cellLeft, cellTop, cellW, cellH, willZeroPoint ? 'zero' : (willSynthesize ? 'synth' : orbFlavor));
+
                 ctx.save();
                 if (willZeroPoint) {
                     let previewLabel = '💥 ZERO POINT!';
@@ -1890,27 +2010,40 @@
                     ctx.shadowBlur = 16;
                     ctx.strokeStyle = previewColor;
                     ctx.lineWidth = previewTier >= 3 ? 3 : 2.5;
-                    ctx.strokeRect(boardOffsetX + col * cellW + 4, boardOffsetY + landingRow * cellH + 4, cellW - 8, cellH - 8);
+                    ctx.strokeRect(cellLeft + 4, cellTop + 4, cellW - 8, cellH - 8);
 
                     ctx.fillStyle = previewColor;
                     ctx.font = '900 11px Inter, sans-serif';
                     ctx.textAlign = 'center';
                     ctx.fillText(previewLabel, centerX, ghostY - cellH / 2 - 4);
                 } else if (willSynthesize) {
-                    ctx.shadowColor = orbVal > 0 ? '#00f2fe' : '#ff4e50';
-                    ctx.shadowBlur = 10;
-                    ctx.strokeStyle = orbVal > 0 ? '#00f2fe' : '#ff4e50';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(boardOffsetX + col * cellW + 4, boardOffsetY + landingRow * cellH + 4, cellW - 8, cellH - 8);
+                    const synthColor = orbVal > 0 ? '#00f2fe' : '#ff4e50';
+                    ctx.shadowColor = synthColor;
+                    ctx.shadowBlur = 12;
+                    ctx.strokeStyle = synthColor;
+                    ctx.lineWidth = 2.2;
+                    ctx.strokeRect(cellLeft + 4, cellTop + 4, cellW - 8, cellH - 8);
 
-                    ctx.fillStyle = orbVal > 0 ? '#00f2fe' : '#ff4e50';
+                    ctx.fillStyle = '#ffffff';
                     ctx.font = '800 11px Inter, sans-serif';
                     ctx.textAlign = 'center';
+                    ctx.shadowColor = synthColor;
+                    ctx.shadowBlur = 8;
                     ctx.fillText(`✨ SYNTHESIS (➜ ${orbVal * 2})`, centerX, ghostY - cellH / 2 - 4);
+                } else {
+                    // Standard drop indicator badge
+                    const tagColor = orbFlavor === 'pos' ? '#a5f3fc' : '#fecdd3';
+                    ctx.fillStyle = tagColor;
+                    ctx.font = '800 10px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.shadowColor = orbFlavor === 'pos' ? '#00f2fe' : '#ff4e50';
+                    ctx.shadowBlur = 8;
+                    ctx.fillText('▼ LANDING', centerX, ghostY - cellH / 2 - 4);
                 }
 
-                ctx.globalAlpha = 0.45;
-                drawTileGraphic(centerX, ghostY, cellW - 10, cellH - 10, currentOrb.label, getOrbFlavor(currentOrb));
+                // Render lighter high-contrast ghost tile
+                ctx.globalAlpha = 0.88;
+                drawTileGraphic(centerX, ghostY, cellW - 10, cellH - 10, currentOrb.label, orbFlavor, 0, true);
                 ctx.restore();
             }
         }
@@ -1938,7 +2071,7 @@
         }
     }
 
-    function drawTileGraphic(x, y, w, h, label, flavor, flash = 0) {
+    function drawTileGraphic(x, y, w, h, label, flavor, flash = 0, isGhost = false) {
         ctx.save();
         ctx.translate(x, y);
 
@@ -1946,106 +2079,211 @@
         ctx.beginPath();
         ctx.roundRect(-w / 2, -h / 2, w, h, r);
 
-        // Styling based on flavor
-        if (flavor === 'pos') {
-            // Cyan Glow Matter
-            const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
-            grad.addColorStop(0, 'rgba(0, 242, 254, 0.28)');
-            grad.addColorStop(1, 'rgba(0, 160, 254, 0.12)');
-            ctx.fillStyle = grad;
-            ctx.fill();
+        if (isGhost) {
+            // Lighter, luminous glass aesthetic for drop ghost preview
+            if (flavor === 'pos') {
+                const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+                grad.addColorStop(0, 'rgba(255, 255, 255, 0.70)');
+                grad.addColorStop(0.4, 'rgba(165, 243, 252, 0.50)');
+                grad.addColorStop(1, 'rgba(0, 242, 254, 0.38)');
+                ctx.fillStyle = grad;
+                ctx.fill();
 
-            ctx.strokeStyle = '#00f2fe';
-            ctx.lineWidth = 2;
-            ctx.shadowColor = 'rgba(0, 242, 254, 0.5)';
-            ctx.shadowBlur = 8;
-            ctx.stroke();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2.4;
+                ctx.shadowColor = '#00f2fe';
+                ctx.shadowBlur = 12;
+                ctx.stroke();
 
-            ctx.fillStyle = '#ffffff';
-        } else if (flavor === 'neg') {
-            // Neon Orange / Coral Anti-Matter
-            const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
-            grad.addColorStop(0, 'rgba(255, 78, 80, 0.28)');
-            grad.addColorStop(1, 'rgba(255, 42, 95, 0.12)');
-            ctx.fillStyle = grad;
-            ctx.fill();
+                ctx.fillStyle = '#ffffff';
+            } else if (flavor === 'neg') {
+                const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+                grad.addColorStop(0, 'rgba(255, 255, 255, 0.70)');
+                grad.addColorStop(0.4, 'rgba(254, 205, 211, 0.50)');
+                grad.addColorStop(1, 'rgba(255, 78, 80, 0.38)');
+                ctx.fillStyle = grad;
+                ctx.fill();
 
-            ctx.strokeStyle = '#ff4e50';
-            ctx.lineWidth = 2;
-            ctx.shadowColor = 'rgba(255, 78, 80, 0.5)';
-            ctx.shadowBlur = 8;
-            ctx.stroke();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2.4;
+                ctx.shadowColor = '#ff4e50';
+                ctx.shadowBlur = 12;
+                ctx.stroke();
 
-            ctx.fillStyle = '#ffffff';
-        } else if (flavor === 'blackhole') {
-            // Black Hole Vortex: Event Horizon Void & Gold/Violet Accretion Disk
-            const grad = ctx.createRadialGradient(0, 0, 2, 0, 0, Math.max(w, h) / 1.5);
-            grad.addColorStop(0, '#020005');
-            grad.addColorStop(0.65, '#0a0118');
-            grad.addColorStop(1, '#1b0336');
-            ctx.fillStyle = grad;
-            ctx.fill();
+                ctx.fillStyle = '#ffffff';
+            } else if (flavor === 'blackhole') {
+                const grad = ctx.createRadialGradient(0, 0, 2, 0, 0, Math.max(w, h) / 1.4);
+                grad.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
+                grad.addColorStop(0.4, 'rgba(255, 215, 0, 0.50)');
+                grad.addColorStop(1, 'rgba(188, 19, 254, 0.40)');
+                ctx.fillStyle = grad;
+                ctx.fill();
 
-            // Pulsing golden accretion boundary
-            ctx.strokeStyle = '#ffd700';
-            ctx.lineWidth = 2.5;
-            ctx.shadowColor = '#bc13fe';
-            ctx.shadowBlur = 14;
-            ctx.stroke();
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = '#ffffff';
+                ctx.shadowBlur = 14;
+                ctx.stroke();
 
-            // Subtle inner accretion ring
+                ctx.fillStyle = '#ffffff';
+            } else if (flavor === 'supernova_core') {
+                const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+                grad.addColorStop(0, 'rgba(255, 255, 255, 0.80)');
+                grad.addColorStop(0.5, 'rgba(255, 235, 120, 0.55)');
+                grad.addColorStop(1, 'rgba(255, 160, 0, 0.40)');
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = '#ffd700';
+                ctx.shadowBlur = 14;
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+            } else if (flavor === 'antimatter_nuke') {
+                const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+                grad.addColorStop(0, 'rgba(255, 255, 255, 0.80)');
+                grad.addColorStop(0.5, 'rgba(255, 140, 150, 0.55)');
+                grad.addColorStop(1, 'rgba(255, 42, 95, 0.40)');
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = '#ff4e50';
+                ctx.shadowBlur = 14;
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+            } else { // 'special'
+                const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+                grad.addColorStop(0, 'rgba(255, 255, 255, 0.70)');
+                grad.addColorStop(0.4, 'rgba(235, 185, 255, 0.50)');
+                grad.addColorStop(1, 'rgba(196, 113, 237, 0.38)');
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2.4;
+                ctx.shadowColor = '#c471ed';
+                ctx.shadowBlur = 12;
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+            }
+
+            // Ghost inner holographic outline
+            ctx.save();
+            ctx.setLineDash([3, 3]);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+            ctx.lineWidth = 1.2;
             ctx.beginPath();
-            ctx.arc(0, 0, Math.min(w, h) * 0.32, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(188, 19, 254, 0.5)';
-            ctx.lineWidth = 1.5;
+            ctx.roundRect(-w / 2 + 3, -h / 2 + 3, w - 6, h - 6, r - 2);
             ctx.stroke();
+            ctx.restore();
+        } else {
+            // Standard tile rendering (solid, contrasty on board)
+            if (flavor === 'pos') {
+                // Cyan Glow Matter
+                const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+                grad.addColorStop(0, 'rgba(0, 242, 254, 0.28)');
+                grad.addColorStop(1, 'rgba(0, 160, 254, 0.12)');
+                ctx.fillStyle = grad;
+                ctx.fill();
 
-            ctx.fillStyle = '#ffd700';
-        } else if (flavor === 'supernova_core') {
-            // Supernova Core: Blazing Solar Flare
-            const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
-            grad.addColorStop(0, 'rgba(255, 215, 0, 0.45)');
-            grad.addColorStop(1, 'rgba(255, 120, 0, 0.25)');
-            ctx.fillStyle = grad;
-            ctx.fill();
+                ctx.strokeStyle = '#00f2fe';
+                ctx.lineWidth = 2;
+                ctx.shadowColor = 'rgba(0, 242, 254, 0.5)';
+                ctx.shadowBlur = 8;
+                ctx.stroke();
 
-            ctx.strokeStyle = '#ffd700';
-            ctx.lineWidth = 2.5;
-            ctx.shadowColor = 'rgba(255, 215, 0, 0.7)';
-            ctx.shadowBlur = 12;
-            ctx.stroke();
+                ctx.fillStyle = '#ffffff';
+            } else if (flavor === 'neg') {
+                // Neon Orange / Coral Anti-Matter
+                const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+                grad.addColorStop(0, 'rgba(255, 78, 80, 0.28)');
+                grad.addColorStop(1, 'rgba(255, 42, 95, 0.12)');
+                ctx.fillStyle = grad;
+                ctx.fill();
 
-            ctx.fillStyle = '#ffffff';
-        } else if (flavor === 'antimatter_nuke') {
-            // Antimatter Nuke: Crimson Warhead
-            const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
-            grad.addColorStop(0, 'rgba(255, 78, 80, 0.45)');
-            grad.addColorStop(1, 'rgba(255, 0, 80, 0.25)');
-            ctx.fillStyle = grad;
-            ctx.fill();
+                ctx.strokeStyle = '#ff4e50';
+                ctx.lineWidth = 2;
+                ctx.shadowColor = 'rgba(255, 78, 80, 0.5)';
+                ctx.shadowBlur = 8;
+                ctx.stroke();
 
-            ctx.strokeStyle = '#ff4e50';
-            ctx.lineWidth = 2.5;
-            ctx.shadowColor = 'rgba(255, 42, 95, 0.75)';
-            ctx.shadowBlur = 12;
-            ctx.stroke();
+                ctx.fillStyle = '#ffffff';
+            } else if (flavor === 'blackhole') {
+                // Black Hole Vortex: Event Horizon Void & Gold/Violet Accretion Disk
+                const grad = ctx.createRadialGradient(0, 0, 2, 0, 0, Math.max(w, h) / 1.5);
+                grad.addColorStop(0, '#020005');
+                grad.addColorStop(0.65, '#0a0118');
+                grad.addColorStop(1, '#1b0336');
+                ctx.fillStyle = grad;
+                ctx.fill();
 
-            ctx.fillStyle = '#ffffff';
-        } else if (flavor === 'special') {
-            // Purple Quantum Orb
-            const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
-            grad.addColorStop(0, 'rgba(196, 113, 237, 0.35)');
-            grad.addColorStop(1, 'rgba(18, 194, 233, 0.2)');
-            ctx.fillStyle = grad;
-            ctx.fill();
+                // Pulsing golden accretion boundary
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = '#bc13fe';
+                ctx.shadowBlur = 14;
+                ctx.stroke();
 
-            ctx.strokeStyle = '#c471ed';
-            ctx.lineWidth = 2;
-            ctx.shadowColor = 'rgba(196, 113, 237, 0.6)';
-            ctx.shadowBlur = 10;
-            ctx.stroke();
+                // Subtle inner accretion ring
+                ctx.beginPath();
+                ctx.arc(0, 0, Math.min(w, h) * 0.32, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(188, 19, 254, 0.5)';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
 
-            ctx.fillStyle = '#ffffff';
+                ctx.fillStyle = '#ffd700';
+            } else if (flavor === 'supernova_core') {
+                // Supernova Core: Blazing Solar Flare
+                const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+                grad.addColorStop(0, 'rgba(255, 215, 0, 0.45)');
+                grad.addColorStop(1, 'rgba(255, 120, 0, 0.25)');
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = 'rgba(255, 215, 0, 0.7)';
+                ctx.shadowBlur = 12;
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+            } else if (flavor === 'antimatter_nuke') {
+                // Antimatter Nuke: Crimson Warhead
+                const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+                grad.addColorStop(0, 'rgba(255, 78, 80, 0.45)');
+                grad.addColorStop(1, 'rgba(255, 0, 80, 0.25)');
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                ctx.strokeStyle = '#ff4e50';
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = 'rgba(255, 42, 95, 0.75)';
+                ctx.shadowBlur = 12;
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+            } else if (flavor === 'special') {
+                // Purple Quantum Orb
+                const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+                grad.addColorStop(0, 'rgba(196, 113, 237, 0.35)');
+                grad.addColorStop(1, 'rgba(18, 194, 233, 0.2)');
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                ctx.strokeStyle = '#c471ed';
+                ctx.lineWidth = 2;
+                ctx.shadowColor = 'rgba(196, 113, 237, 0.6)';
+                ctx.shadowBlur = 10;
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+            }
         }
 
         // Flash overlay on impact/fusion
@@ -2054,8 +2292,13 @@
             ctx.fill();
         }
 
-        // Draw Value Label (adapt font size to text length so labels like '⚫ VORTEX' fit nicely)
-        ctx.shadowBlur = 0;
+        // Draw Value Label (adapt font size to text length so labels fit nicely)
+        if (isGhost) {
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#ffffff';
+        } else {
+            ctx.shadowBlur = 0;
+        }
         if (label.length > 5) {
             ctx.font = '900 0.82rem Inter, sans-serif';
         } else if (label.length > 2) {
