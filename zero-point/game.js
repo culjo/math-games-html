@@ -39,6 +39,23 @@
     const btnTouchHold = document.getElementById('btn-touch-hold');
     const btnTouchDrop = document.getElementById('btn-touch-drop');
     const btnTouchFrenzy = document.getElementById('btn-touch-frenzy');
+    const btnTouchSwap = document.getElementById('btn-touch-swap');
+
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    const iconExpand = document.getElementById('icon-expand');
+    const iconCompress = document.getElementById('icon-compress');
+    const appEl = document.getElementById('app');
+
+    const btnSwapToken = document.getElementById('btn-swap-token');
+    const swapTokenCount = document.getElementById('swap-token-count');
+    const swapBanner = document.getElementById('swap-banner');
+
+    const bountyCard = document.getElementById('bounty-card');
+    const bountyName = document.getElementById('bounty-name');
+    const bountyReward = document.getElementById('bounty-reward');
+    const bountyDesc = document.getElementById('bounty-desc');
+    const bountyProgressText = document.getElementById('bounty-progress-text');
+    const bountyProgressFill = document.getElementById('bounty-progress-fill');
 
     const overdriveContainer = document.getElementById('overdrive-container');
     const overdrivePercent = document.getElementById('overdrive-percent');
@@ -63,6 +80,16 @@
     let isOverdriveReady = false;
     let isFrenzyActive = false;
     let frenzyTurnsRemaining = 0;
+
+    // Quantum Swap State
+    let swapTokens = 1;
+    const maxSwapTokens = 3;
+    let isSwapModeActive = false;
+    let firstSwapTile = null; // { r, c }
+    let dropsSinceSwapCharge = 0;
+
+    // Tactical Bounties
+    let currentBounty = null;
 
     // Tactical Orbs
     let currentOrb = null;
@@ -115,6 +142,7 @@
         window.addEventListener('resize', resizeCanvas);
         setupInputs();
         setupAudioUI();
+        setupFullscreenUI();
 
         bestVal.textContent = highScore.toLocaleString();
         startNewGame();
@@ -169,6 +197,11 @@
         isOverdriveReady = false;
         isFrenzyActive = false;
         frenzyTurnsRemaining = 0;
+        swapTokens = 1;
+        isSwapModeActive = false;
+        firstSwapTile = null;
+        dropsSinceSwapCharge = 0;
+        currentBounty = generateBounty();
 
         // Seed bottom 2 rows with interesting mix of numbers and dark matter
         populateInitialBoard();
@@ -239,6 +272,15 @@
 
         sfx.init();
         addOverdriveCharge(3);
+
+        dropsSinceSwapCharge++;
+        if (dropsSinceSwapCharge >= 8) {
+            dropsSinceSwapCharge = 0;
+            if (swapTokens < maxSwapTokens) {
+                addSwapToken(1);
+            }
+        }
+
         const col = aimCol;
 
         // Find landing row in this column
@@ -442,7 +484,7 @@
     }
 
     // Cascade Pipeline: Gravity -> Adjacency -> Gravity until stable
-    async function resolveBoardCascades() {
+    async function resolveBoardCascades(isSwap = false) {
         let cascadeOccurred = false;
         let chainStep = 0;
 
@@ -460,6 +502,9 @@
                 chainStep++;
                 combo++;
                 if (combo > maxCombo) maxCombo = combo;
+                if (combo >= 2) {
+                    checkBountyProgress('cascade', 1);
+                }
                 updateHUD();
                 await delay(220);
                 continue; // Re-check gravity and subsequent cascades
@@ -475,10 +520,12 @@
             updateHUD();
         }
 
-        movesUntilRise--;
-        if (movesUntilRise <= 0) {
-            movesUntilRise = MOVES_PER_RISE;
-            await pushRisingRow();
+        if (!isSwap) {
+            movesUntilRise--;
+            if (movesUntilRise <= 0) {
+                movesUntilRise = MOVES_PER_RISE;
+                await pushRisingRow();
+            }
         }
 
         checkGameOver();
@@ -563,6 +610,7 @@
                             fusedVal > 0 ? 'var(--cyan)' : 'var(--orange)');
                         addScore(100 * (chainStep + 1));
                         addOverdriveCharge(8);
+                        checkBountyProgress('synthesis', 1);
                         return true;
                     }
                 }
@@ -583,6 +631,7 @@
                             fusedVal > 0 ? 'var(--cyan)' : 'var(--orange)');
                         addScore(100 * (chainStep + 1));
                         addOverdriveCharge(8);
+                        checkBountyProgress('synthesis', 1);
                         return true;
                     }
                 }
@@ -702,6 +751,17 @@
 
         const chargeBonus = Math.round((10 + tier * 8) * (1 + (combo - 1) * 0.25));
         addOverdriveCharge(chargeBonus);
+
+        // Tactical Bounty checks & Supernova Token Bonus
+        if (tier >= 3) {
+            checkBountyProgress('laser', 1);
+        }
+        if (tier >= 4) {
+            checkBountyProgress('supernova', 1);
+            if (swapTokens < maxSwapTokens) {
+                addSwapToken(1);
+            }
+        }
     }
 
     function damageDarkMatterTile(r, c, dmg = 1) {
@@ -710,6 +770,7 @@
         if (target && target.type === 'dark_matter') {
             target.hp -= dmg;
             sfx.playCrack();
+            checkBountyProgress('dark_matter', dmg);
             const nx = boardOffsetX + c * cellW + cellW / 2;
             const ny = boardOffsetY + r * cellH + cellH / 2;
             createSparks(nx, ny, '#888', 8);
@@ -894,7 +955,337 @@
         };
 
         addFloatingText('🔥 SINGULARITY FRENZY! 🔥', canvas.width / (2 * dpr), boardOffsetY + cellH * 3, '#ffd700', 1.5);
+        checkBountyProgress('frenzy', 1);
         updateHUD();
+    }
+
+    // Tactical Bounties System
+    const BOUNTY_TEMPLATES = [
+        {
+            id: 'laser',
+            title: 'Cross Laser Blast',
+            desc: 'Detonate a ±4+ pair for a Tier 3+ Cross Laser',
+            target: 1,
+            rewardScore: 500,
+            rewardSwap: 1,
+            rewardOvd: 25,
+            rewardText: '+500 PTS • +1 SWAP'
+        },
+        {
+            id: 'supernova',
+            title: 'Supernova Crater',
+            desc: 'Trigger a Tier 4+ Supernova (±8 or higher)',
+            target: 1,
+            rewardScore: 800,
+            rewardSwap: 1,
+            rewardOvd: 35,
+            rewardText: '+800 PTS • +1 SWAP'
+        },
+        {
+            id: 'synthesis',
+            title: 'Double Fusion',
+            desc: 'Synthesize identical tiles 2 times (e.g. +2 & +2)',
+            target: 2,
+            rewardScore: 400,
+            rewardSwap: 1,
+            rewardOvd: 20,
+            rewardText: '+400 PTS • +1 SWAP'
+        },
+        {
+            id: 'cascade',
+            title: 'Cascade Surge',
+            desc: 'Trigger a 2x or higher combo cascade chain',
+            target: 1,
+            rewardScore: 600,
+            rewardSwap: 1,
+            rewardOvd: 25,
+            rewardText: '+600 PTS • +1 SWAP'
+        },
+        {
+            id: 'dark_matter',
+            title: 'Dark Matter Breach',
+            desc: 'Damage or shatter 3 Dark Matter cores',
+            target: 3,
+            rewardScore: 500,
+            rewardSwap: 1,
+            rewardOvd: 25,
+            rewardText: '+500 PTS • +1 SWAP'
+        },
+        {
+            id: 'frenzy',
+            title: 'Singularity Overdrive',
+            desc: 'Activate Singularity Frenzy mode [F]',
+            target: 1,
+            rewardScore: 750,
+            rewardSwap: 1,
+            rewardOvd: 30,
+            rewardText: '+750 PTS • +1 SWAP'
+        }
+    ];
+
+    function generateBounty() {
+        const pool = currentBounty 
+            ? BOUNTY_TEMPLATES.filter(t => t.id !== currentBounty.id)
+            : BOUNTY_TEMPLATES;
+        const template = pool[Math.floor(Math.random() * pool.length)];
+        return {
+            ...template,
+            progress: 0
+        };
+    }
+
+    function updateBountyUI() {
+        if (!currentBounty || !bountyCard) return;
+        bountyName.textContent = currentBounty.title;
+        bountyReward.textContent = currentBounty.rewardText;
+        bountyDesc.textContent = currentBounty.desc;
+        bountyProgressText.textContent = `${currentBounty.progress}/${currentBounty.target}`;
+        const pct = Math.min(100, Math.round((currentBounty.progress / currentBounty.target) * 100));
+        bountyProgressFill.style.width = `${pct}%`;
+    }
+
+    function checkBountyProgress(type, amount = 1) {
+        if (!currentBounty || isGameOver) return;
+        if (currentBounty.id === type) {
+            currentBounty.progress = Math.min(currentBounty.target, currentBounty.progress + amount);
+            updateBountyUI();
+            if (currentBounty.progress >= currentBounty.target) {
+                completeBounty();
+            }
+        }
+    }
+
+    function completeBounty() {
+        if (!currentBounty) return;
+        const b = currentBounty;
+        addScore(b.rewardScore);
+        if (b.rewardSwap) addSwapToken(b.rewardSwap);
+        if (b.rewardOvd) addOverdriveCharge(b.rewardOvd);
+
+        sfx.playBountyComplete();
+        if (bountyCard) {
+            bountyCard.classList.add('completed-flash');
+            setTimeout(() => bountyCard.classList.remove('completed-flash'), 650);
+        }
+
+        addFloatingText(`🎯 BOUNTY: ${b.title}! ${b.rewardText}`, canvas.width / (2 * dpr), boardOffsetY + cellH * 2.2, '#ffd700', 1.35);
+
+        currentBounty = generateBounty();
+        updateBountyUI();
+    }
+
+    // Quantum Swap Mechanics
+    function addSwapToken(qty = 1) {
+        if (swapTokens >= maxSwapTokens) return;
+        swapTokens = Math.min(maxSwapTokens, swapTokens + qty);
+        sfx.playPowerup();
+        addFloatingText('⚡ +1 SWAP TOKEN!', canvas.width / (2 * dpr), boardOffsetY + cellH * 1.5, '#00f2fe', 1.25);
+        updateHUD();
+    }
+
+    function toggleSwapMode() {
+        if (isProcessing || isGameOver) return;
+        if (!isSwapModeActive && swapTokens <= 0) {
+            triggerScreenShake(6);
+            sfx.playWarning();
+            addFloatingText('NO SWAP TOKENS! Earn via 8 drops or Bounties', canvas.width / (2 * dpr), boardOffsetY + cellH * 3, '#ff4e50', 1.1);
+            return;
+        }
+
+        isSwapModeActive = !isSwapModeActive;
+        firstSwapTile = null;
+
+        if (isSwapModeActive) {
+            sfx.playMove();
+            if (swapBanner) {
+                swapBanner.style.display = 'block';
+                swapBanner.textContent = 'SWAP MODE: Select first tile on board';
+            }
+        } else {
+            if (swapBanner) swapBanner.style.display = 'none';
+        }
+        updateHUD();
+    }
+
+    function handleSwapClick(mouseX, mouseY) {
+        if (!isSwapModeActive || isProcessing || isGameOver) return;
+
+        const c = Math.floor((mouseX - boardOffsetX) / cellW);
+        const r = Math.floor((mouseY - boardOffsetY) / cellH);
+
+        if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
+
+        if (!firstSwapTile) {
+            // First selection must be an occupied tile
+            if (!grid[r][c]) {
+                sfx.playWarning();
+                return;
+            }
+            firstSwapTile = { r, c };
+            sfx.playMove();
+            if (swapBanner) {
+                swapBanner.textContent = 'Select adjacent tile to swap (or click same tile to cancel)';
+            }
+        } else {
+            // Clicked same tile -> cancel selection
+            if (firstSwapTile.r === r && firstSwapTile.c === c) {
+                firstSwapTile = null;
+                sfx.playMove();
+                if (swapBanner) {
+                    swapBanner.textContent = 'SWAP MODE: Select first tile on board';
+                }
+                return;
+            }
+
+            // Check orthogonal adjacency
+            const isAdjacent = Math.abs(r - firstSwapTile.r) + Math.abs(c - firstSwapTile.c) === 1;
+
+            if (!isAdjacent) {
+                // If clicked another occupied tile, re-select it
+                if (grid[r][c]) {
+                    firstSwapTile = { r, c };
+                    sfx.playMove();
+                    if (swapBanner) {
+                        swapBanner.textContent = 'Select adjacent tile to swap (or click same tile to cancel)';
+                    }
+                }
+                return;
+            }
+
+            // Valid Swap Execution!
+            const r1 = firstSwapTile.r;
+            const c1 = firstSwapTile.c;
+            const t1 = grid[r1][c1];
+            const t2 = grid[r][c];
+
+            grid[r1][c1] = t2;
+            grid[r][c] = t1;
+
+            swapTokens = Math.max(0, swapTokens - 1);
+            sfx.playQuantumSwap();
+
+            // Visual effects at both tiles
+            const x1 = boardOffsetX + (c1 + 0.5) * cellW;
+            const y1 = boardOffsetY + (r1 + 0.5) * cellH;
+            const x2 = boardOffsetX + (c + 0.5) * cellW;
+            const y2 = boardOffsetY + (r + 0.5) * cellH;
+            createSparks(x1, y1, '#00f2fe', 16);
+            createSparks(x2, y2, '#ffd700', 16);
+            shockwaves.push({ x: (x1 + x2) / 2, y: (y1 + y2) / 2, radius: 10, maxRadius: cellW * 2.5, alpha: 1, color: '#00f2fe' });
+            addFloatingText('QUANTUM SWAP!', (x1 + x2) / 2, (y1 + y2) / 2, '#ffd700', 1.3);
+
+            isSwapModeActive = false;
+            firstSwapTile = null;
+            if (swapBanner) swapBanner.style.display = 'none';
+            updateHUD();
+
+            isProcessing = true;
+            resolveBoardCascades(true); // isSwap = true
+        }
+    }
+
+    function drawSwapModeHighlights() {
+        if (!isSwapModeActive) return;
+
+        ctx.save();
+        // Pulsing border around the board
+        ctx.strokeStyle = 'rgba(0, 242, 254, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(boardOffsetX + 2, boardOffsetY + 2, cellW * COLS - 4, cellH * ROWS - 4);
+
+        if (firstSwapTile) {
+            const selX = boardOffsetX + firstSwapTile.c * cellW + 3;
+            const selY = boardOffsetY + firstSwapTile.r * cellH + 3;
+
+            // Pulsing gold box around selected tile
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = 14;
+            ctx.strokeRect(selX, selY, cellW - 6, cellH - 6);
+
+            // Adjacent target indicators
+            const neighbors = [
+                [firstSwapTile.r - 1, firstSwapTile.c],
+                [firstSwapTile.r + 1, firstSwapTile.c],
+                [firstSwapTile.r, firstSwapTile.c - 1],
+                [firstSwapTile.r, firstSwapTile.c + 1]
+            ];
+
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#00f2fe';
+            ctx.strokeStyle = '#00f2fe';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+
+            for (const [nr, nc] of neighbors) {
+                if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
+                    const nx = boardOffsetX + nc * cellW + 3;
+                    const ny = boardOffsetY + nr * cellH + 3;
+                    ctx.strokeRect(nx, ny, cellW - 6, cellH - 6);
+
+                    // Small direction indicator dot toward neighbor
+                    const cx = boardOffsetX + (nc + 0.5) * cellW;
+                    const cy = boardOffsetY + (nr + 0.5) * cellH;
+                    ctx.fillStyle = 'rgba(0, 242, 254, 0.7)';
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+        ctx.restore();
+    }
+
+    // Fullscreen and Expanded View Controller
+    function setupFullscreenUI() {
+        if (!btnFullscreen) return;
+
+        function updateFullscreenIcons() {
+            const isFs = !!document.fullscreenElement || !!document.webkitFullscreenElement || (appEl && appEl.classList.contains('fullscreen-mode'));
+            if (iconExpand) iconExpand.style.display = isFs ? 'none' : 'block';
+            if (iconCompress) iconCompress.style.display = isFs ? 'block' : 'none';
+        }
+
+        btnFullscreen.addEventListener('click', () => {
+            sfx.init();
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                const exitFs = document.exitFullscreen || document.webkitExitFullscreen;
+                if (exitFs) exitFs.call(document).catch(() => {});
+                if (appEl) appEl.classList.remove('fullscreen-mode');
+                updateFullscreenIcons();
+                setTimeout(resizeCanvas, 100);
+            } else if (appEl && appEl.classList.contains('fullscreen-mode')) {
+                appEl.classList.remove('fullscreen-mode');
+                updateFullscreenIcons();
+                setTimeout(resizeCanvas, 100);
+            } else {
+                const docEl = document.documentElement;
+                const reqFs = docEl.requestFullscreen || docEl.webkitRequestFullscreen;
+                if (reqFs) {
+                    reqFs.call(docEl).then(() => {
+                        updateFullscreenIcons();
+                        setTimeout(resizeCanvas, 100);
+                    }).catch(() => {
+                        if (appEl) appEl.classList.add('fullscreen-mode');
+                        updateFullscreenIcons();
+                        setTimeout(resizeCanvas, 100);
+                    });
+                } else {
+                    if (appEl) appEl.classList.add('fullscreen-mode');
+                    updateFullscreenIcons();
+                    setTimeout(resizeCanvas, 100);
+                }
+            }
+        });
+
+        const onFsChange = () => {
+            updateFullscreenIcons();
+            setTimeout(resizeCanvas, 100);
+        };
+
+        document.addEventListener('fullscreenchange', onFsChange);
+        document.addEventListener('webkitfullscreenchange', onFsChange);
     }
 
     function updateHUD() {
@@ -902,7 +1293,7 @@
         riseCounter.textContent = `${movesUntilRise} Drop${movesUntilRise === 1 ? '' : 's'}`;
 
         // Update Overdrive Gauge
-        if (overdrivePercent && overdriveFill) {
+        if (overdriveContainer && overdrivePercent && overdriveFill) {
             if (isFrenzyActive) {
                 overdriveContainer.classList.add('frenzy-active');
                 overdrivePercent.textContent = `${frenzyTurnsRemaining} FRENZY TURNS`;
@@ -923,6 +1314,33 @@
                 btnTouchFrenzy.style.display = isOverdriveReady ? 'block' : 'none';
             }
         }
+
+        // Update Swap Token UI
+        if (swapTokenCount) {
+            swapTokenCount.textContent = swapTokens;
+        }
+        if (btnSwapToken) {
+            if (swapTokens > 0) {
+                btnSwapToken.classList.add('has-tokens');
+            } else {
+                btnSwapToken.classList.remove('has-tokens');
+            }
+            if (isSwapModeActive) {
+                btnSwapToken.classList.add('swap-mode-active');
+            } else {
+                btnSwapToken.classList.remove('swap-mode-active');
+            }
+        }
+        if (btnTouchSwap) {
+            if (isSwapModeActive) {
+                btnTouchSwap.classList.add('swap-mode-active');
+            } else {
+                btnTouchSwap.classList.remove('swap-mode-active');
+            }
+        }
+
+        // Update Tactical Bounty UI
+        updateBountyUI();
 
         // Update Hold Slot UI
         if (heldOrb) {
@@ -972,6 +1390,13 @@
             if (isProcessing || isGameOver) return;
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            if (isSwapModeActive) {
+                handleSwapClick(mouseX, mouseY);
+                return;
+            }
+
             const col = Math.floor(mouseX / cellW);
             if (col >= 0 && col < COLS) {
                 aimCol = col;
@@ -981,10 +1406,18 @@
 
         // Touch Interaction
         let touchStartX = 0;
+        let touchStartY = 0;
         canvas.addEventListener('touchstart', (e) => {
             if (isProcessing || isGameOver) return;
             const rect = canvas.getBoundingClientRect();
             touchStartX = e.touches[0].clientX - rect.left;
+            touchStartY = e.touches[0].clientY - rect.top;
+
+            if (isSwapModeActive) {
+                handleSwapClick(touchStartX, touchStartY);
+                return;
+            }
+
             const col = Math.floor(touchStartX / cellW);
             if (col >= 0 && col < COLS) {
                 aimCol = col;
@@ -992,7 +1425,7 @@
         }, { passive: true });
 
         canvas.addEventListener('touchmove', (e) => {
-            if (isProcessing || isGameOver) return;
+            if (isProcessing || isGameOver || isSwapModeActive) return;
             const rect = canvas.getBoundingClientRect();
             const touchX = e.touches[0].clientX - rect.left;
             const col = Math.floor(touchX / cellW);
@@ -1017,13 +1450,24 @@
                 }
             } else if (e.code === 'Space' || e.code === 'ArrowDown' || e.key === 'Enter') {
                 e.preventDefault();
-                dropActiveOrb();
+                if (!isSwapModeActive) {
+                    dropActiveOrb();
+                }
             } else if (e.key === 'c' || e.key === 'C') {
                 swapHold();
+            } else if (e.key === 's' || e.key === 'S') {
+                toggleSwapMode();
             } else if (e.key === 'f' || e.key === 'F') {
                 activateOverdrive();
             } else if (e.key === 'r' || e.key === 'R') {
                 startNewGame();
+            } else if (e.code === 'Escape') {
+                if (isSwapModeActive) {
+                    isSwapModeActive = false;
+                    firstSwapTile = null;
+                    if (swapBanner) swapBanner.style.display = 'none';
+                    updateHUD();
+                }
             }
         });
 
@@ -1031,6 +1475,8 @@
         holdSlot.addEventListener('click', swapHold);
         btnTouchHold.addEventListener('click', swapHold);
         btnTouchDrop.addEventListener('click', dropActiveOrb);
+        if (btnSwapToken) btnSwapToken.addEventListener('click', toggleSwapMode);
+        if (btnTouchSwap) btnTouchSwap.addEventListener('click', toggleSwapMode);
         if (btnOverdrive) btnOverdrive.addEventListener('click', activateOverdrive);
         if (btnTouchFrenzy) btnTouchFrenzy.addEventListener('click', activateOverdrive);
 
@@ -1158,6 +1604,9 @@
         // 3. Draw Board Tiles
         drawTiles();
 
+        // 3.5 Draw Swap Mode Selection Highlights
+        drawSwapModeHighlights();
+
         // 4. Draw Active Falling Projectile
         drawActiveProjectile();
 
@@ -1215,7 +1664,7 @@
     }
 
     function drawAimerAndPreview() {
-        if (isGameOver) return;
+        if (isGameOver || isSwapModeActive) return;
         const col = aimCol;
         const centerX = boardOffsetX + col * cellW + cellW / 2;
 

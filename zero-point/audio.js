@@ -331,6 +331,56 @@ class SoundFX {
 
         this.playNoiseBlast(0.4, 0.25);
     }
+
+    playQuantumSwap() {
+        if (this.muted || !this.ctx) return;
+        this.resume();
+        const now = this.ctx.currentTime;
+
+        [320, 480].forEach((baseFreq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+
+            osc.type = i === 0 ? 'sine' : 'triangle';
+            osc.frequency.setValueAtTime(baseFreq, now);
+            osc.frequency.exponentialRampToValueAtTime(baseFreq * 2.2, now + 0.08);
+            osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.8, now + 0.18);
+
+            gain.gain.setValueAtTime(0.18, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.18);
+        });
+    }
+
+    playBountyComplete() {
+        if (this.muted || !this.ctx) return;
+        this.resume();
+        const now = this.ctx.currentTime;
+
+        const notes = [698.46, 880.00, 1046.50];
+        notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+
+            const time = now + idx * 0.07;
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, time);
+
+            gain.gain.setValueAtTime(0.2, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc.start(time);
+            osc.stop(time + 0.3);
+        });
+    }
 }
 
 window.soundFX = new SoundFX();

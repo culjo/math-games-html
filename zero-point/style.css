@@ -280,6 +280,129 @@ header {
     border-color: var(--purple);
 }
 
+/* Quantum Swap Slot */
+.swap-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.swap-slot {
+    border-color: rgba(0, 242, 254, 0.3);
+    color: var(--cyan);
+    font-weight: 900;
+    font-size: 0.85rem;
+}
+
+.swap-slot:hover {
+    border-color: var(--cyan);
+    box-shadow: 0 0 10px var(--cyan-glow);
+}
+
+.swap-slot.has-tokens {
+    border-style: solid;
+    border-color: var(--cyan);
+}
+
+.swap-slot.swap-mode-active {
+    background: rgba(0, 242, 254, 0.2);
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 14px rgba(255, 215, 0, 0.5);
+    animation: pulseBorder 1.2s infinite ease-in-out;
+}
+
+/* Tactical Bounty Card */
+.bounty-card {
+    width: 100%;
+    background: rgba(18, 23, 37, 0.7);
+    border: 1px solid rgba(0, 242, 254, 0.2);
+    border-radius: 12px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    backdrop-filter: blur(8px);
+    transition: all 0.25s ease;
+}
+
+.bounty-card.completed-flash {
+    animation: bountyFlash 0.6s ease-out;
+}
+
+@keyframes bountyFlash {
+    0% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.03); filter: brightness(1.8) drop-shadow(0 0 12px var(--gold)); border-color: var(--gold); }
+    100% { transform: scale(1); filter: brightness(1); }
+}
+
+.bounty-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bounty-title-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bounty-badge {
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: var(--cyan);
+    letter-spacing: 0.8px;
+    background: rgba(0, 242, 254, 0.12);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 242, 254, 0.25);
+}
+
+.bounty-name {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.bounty-reward {
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: var(--gold);
+    background: rgba(249, 212, 35, 0.12);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(249, 212, 35, 0.25);
+}
+
+.bounty-desc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.bounty-progress-text {
+    font-weight: 800;
+    color: var(--cyan);
+}
+
+.bounty-progress-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.bounty-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--cyan), var(--gold));
+    transition: width 0.3s ease;
+}
+
 .queue-preview {
     display: flex;
     gap: 6px;
@@ -310,6 +433,25 @@ header {
     touch-action: none;
 }
 
+.swap-banner {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    background: rgba(8, 12, 24, 0.92);
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--gold);
+    text-align: center;
+    z-index: 20;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+    animation: bounceButton 2s infinite ease-in-out;
+}
+
 canvas {
     width: 100%;
     height: 100%;
@@ -330,7 +472,7 @@ canvas {
 .touch-action-buttons {
     display: none;
     width: 100%;
-    gap: 10px;
+    gap: 8px;
 }
 
 .action-btn {
@@ -338,18 +480,35 @@ canvas {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    padding: 12px;
+    padding: 12px 6px;
     border-radius: 12px;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .action-btn.btn-primary {
     background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(196, 113, 237, 0.2));
     border-color: var(--cyan);
     color: var(--cyan);
+}
+
+.action-btn.btn-swap {
+    background: rgba(0, 242, 254, 0.12);
+    border-color: rgba(0, 242, 254, 0.35);
+    color: var(--cyan);
+}
+
+.action-btn.btn-swap.swap-mode-active {
+    background: rgba(255, 215, 0, 0.25);
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
 }
 
 .action-btn:active {
@@ -362,6 +521,80 @@ canvas {
     }
     .desktop-hint {
         display: none;
+    }
+}
+
+/* Fullscreen Mode */
+#app.fullscreen-mode {
+    max-width: 100vw;
+    height: 100vh;
+    padding: 6px 12px;
+    gap: 6px;
+    justify-content: space-between;
+}
+
+#app.fullscreen-mode .canvas-wrapper {
+    flex: 1;
+    max-height: calc(100vh - 230px);
+    aspect-ratio: unset;
+}
+
+/* Mobile Responsiveness Improvements */
+@media (max-width: 480px) {
+    #app {
+        padding: 6px 8px;
+        gap: 6px;
+        max-width: 100%;
+    }
+
+    .brand h1 {
+        font-size: 1.35rem;
+    }
+
+    .stat-pill {
+        padding: 4px 8px;
+    }
+
+    .stat-pill .value {
+        font-size: 0.95rem;
+    }
+
+    .overdrive-container {
+        padding: 4px 8px;
+    }
+
+    .bounty-card {
+        padding: 6px 10px;
+    }
+
+    .tactical-hud {
+        gap: 6px;
+        padding: 4px 6px;
+    }
+
+    .slot {
+        width: 38px;
+        height: 38px;
+    }
+
+    .action-btn {
+        padding: 10px 4px;
+        font-size: 0.78rem;
+    }
+}
+
+@media (max-height: 750px) {
+    #app {
+        gap: 4px;
+        padding: 4px 6px;
+    }
+
+    .brand h1 {
+        font-size: 1.25rem;
+    }
+
+    .bounty-card {
+        padding: 4px 8px;
     }
 }
 

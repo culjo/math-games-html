@@ -36,6 +36,14 @@
                         <line x1="12" y1="17" x2="12.01" y2="17"></line>
                     </svg>
                 </button>
+                <button id="btn-fullscreen" class="btn-icon" aria-label="Toggle Fullscreen" title="Toggle Fullscreen / Expand">
+                    <svg id="icon-expand" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                    </svg>
+                    <svg id="icon-compress" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path>
+                    </svg>
+                </button>
                 <button id="btn-restart" class="btn-icon" aria-label="Restart Game" title="Restart">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="23 4 23 10 17 10"></polyline>
@@ -76,12 +84,39 @@
             </button>
         </div>
 
-        <!-- Tactical HUD (Hold slot & Queue preview & Rise countdown) -->
+        <!-- In-Run Tactical Bounty Card -->
+        <div class="bounty-card" id="bounty-card">
+            <div class="bounty-header">
+                <div class="bounty-title-group">
+                    <span class="bounty-badge">🎯 TACTICAL BOUNTY</span>
+                    <span class="bounty-name" id="bounty-name">Supernova Forge</span>
+                </div>
+                <div class="bounty-reward" id="bounty-reward">
+                    +1,200 pts • ⚡ +1 Swap
+                </div>
+            </div>
+            <div class="bounty-desc-row">
+                <span class="bounty-desc" id="bounty-desc">Detonate a ±4 or higher Cross Laser</span>
+                <span class="bounty-progress-text" id="bounty-progress-text">0 / 1</span>
+            </div>
+            <div class="bounty-progress-track">
+                <div class="bounty-progress-fill" id="bounty-progress-fill" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <!-- Tactical HUD (Hold slot & Swap Tokens & Queue preview & Rise countdown) -->
         <div class="tactical-hud">
             <div class="hold-section">
                 <span class="tactical-label">Hold [C]</span>
                 <div id="hold-slot" class="slot hold-slot" title="Click or Press 'C' to Swap Held Orb">
                     <span id="hold-text">-</span>
+                </div>
+            </div>
+
+            <div class="swap-section">
+                <span class="tactical-label">Swap [S]</span>
+                <div id="btn-swap-token" class="slot swap-slot" title="Click or Press 'S' to enter Quantum Tile Swap Mode">
+                    <span id="swap-token-count" class="swap-token-text">⚡ 1</span>
                 </div>
             </div>
 
@@ -101,15 +136,19 @@
 
         <!-- Canvas Game Arena -->
         <div class="canvas-wrapper" id="canvas-container">
+            <div id="swap-banner" class="swap-banner" style="display: none;">
+                <span>⚡ QUANTUM SWAP: Tap 2 adjacent tiles to swap &bull; [Esc] cancel</span>
+            </div>
             <canvas id="game-canvas"></canvas>
         </div>
 
         <!-- Controls Hint -->
         <div class="controls-bar">
-            <span class="desktop-hint">🖱️ Move mouse / [←][→] &bull; Click/[Space] drop &bull; [C] hold &bull; [F] frenzy</span>
+            <span class="desktop-hint">🖱️ Move mouse / [←][→] &bull; Click/[Space] drop &bull; [C] hold &bull; [S] swap &bull; [F] frenzy</span>
             <div class="touch-action-buttons">
                 <button id="btn-touch-hold" class="action-btn">Hold [C]</button>
-                <button id="btn-touch-frenzy" class="action-btn" style="display: none; background: linear-gradient(135deg, var(--purple), var(--gold)); color: #000; font-weight: 900;">⚡ Frenzy!</button>
+                <button id="btn-touch-swap" class="action-btn btn-swap">⚡ Swap (1)</button>
+                <button id="btn-touch-frenzy" class="action-btn" style="display: none; background: linear-gradient(135deg, var(--purple), var(--gold)); color: #000; font-weight: 900;">🔥 Frenzy!</button>
                 <button id="btn-touch-drop" class="action-btn btn-primary">Drop Orb</button>
             </div>
         </div>
@@ -161,9 +200,17 @@
             </div>
 
             <div class="guide-step">
+                <div class="badge-demo" style="background: rgba(0, 242, 254, 0.15); border: 2px solid var(--cyan); color: var(--cyan);">⚡</div>
+                <div>
+                    <h3>5. Quantum Swap Tokens & Tactical Bounties</h3>
+                    <p>Earn <strong>Swap Tokens</strong> by completing in-run bounties, cascades, or drops. Press <strong>[S]</strong> (or tap Swap) to swap any 2 adjacent board tiles to ignite monster Supernovas or rescue a tight situation!</p>
+                </div>
+            </div>
+
+            <div class="guide-step">
                 <div class="badge-demo" style="background:#222; border:1px solid #666; color:#aaa;">#</div>
                 <div>
-                    <h3>5. Watch the Ceiling!</h3>
+                    <h3>6. Watch the Ceiling!</h3>
                     <p>Every 5 drops, a new row of dormant Dark Matter rises from the bottom. Shatter them with Zero Point blasts. Don't let blocks cross the red danger line!</p>
                 </div>
             </div>

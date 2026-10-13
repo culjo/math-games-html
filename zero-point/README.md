@@ -29,19 +29,30 @@ Every drop, synthesis (+8%), and Zero Point detonation (+18% to +50%) charges th
   2. **`[🌟 NOVA]` Supernova Core**: Detonates an immediate Tier 4 Supernova Crater across a **3×3 blast area**!
   3. **`[💥 NUKE]` Antimatter Nuke**: Unleashes a high-explosive **3×3 area blast**!
 
-### 4. Cascading Chain Reactions
+### 4. Quantum Swap Tokens (Emergency Rescue & Setup)
+Spend a Quantum Swap Token to swap **any two adjacent tiles** on the board.
+* **How to Earn**: +1 Token automatically every 8 drops, +1 Token on Tier 4+ Supernovas/Singularities, and rewards from In-Run Micro-Bounties!
+* **How to Use**: Press **`[S]`** or tap the **Swap Slot / Swap [S]** button, click the first tile (golden selection box), then click an adjacent tile to perform the swap.
+* **Tactical Advantage**: Swapping triggers board gravity and cascade checks **without** advancing the reactor rise counter!
+
+### 5. In-Run Tactical Micro-Bounties
+Dynamic short-term objectives appear on the HUD strip:
+* **Mission Types**: Cross Laser Blasts (Tier 3+), Supernova Detonations (Tier 4+), Double Fusions (synthesizing identical tiles), Cascade Surges (2x+ combos), Dark Matter Breaches, and Singularity Overdrive triggers.
+* **Rewards**: Complete bounties for hefty bonus score (+400 to +800 PTS), instant Overdrive recharge (+20% to +35%), and extra **Quantum Swap Tokens**!
+
+### 6. Cascading Chain Reactions
 When blocks clear and gravity pulls the board downward, newly touching neighbors automatically evaluate.
 * `2x CASCADE!` `3x CASCADE!` `SINGULARITY STRIKE!`
 * Score multiplier scales exponentially with combo depth.
 
-### 5. Quantum Modifiers
+### 7. Quantum Modifiers
 Rare special orbs appear in your launcher queue:
 * **`[±] Invert`**: Flips positive to negative or negative to positive.
 * **`[÷2] Fission`**: Halves the targeted tile.
 * **`[×2] Amplify`**: Doubles the targeted tile.
 * **`[0] Singularity Core`**: Detonates a 3x3 radius immediately.
 
-### 6. Containment Threshold & Pressure
+### 8. Containment Threshold & Pressure
 Every **5 drops**, dormant **Dark Matter** rises from the reactor bottom. Detonate Zero Points next to Dark Matter to crack and shatter them! If blocks cross the top red danger line, a Containment Breach (Game Over) occurs.
 
 ---
@@ -53,7 +64,9 @@ Every **5 drops**, dormant **Dark Matter** rises from the reactor bottom. Detona
 | **Aim Column** | Move Mouse or `[←]` `[→]` / `[A]` `[D]` | Drag / Tap Column |
 | **Drop Orb** | Click or `[Space]` / `[Enter]` / `[↓]` | Tap **Drop Orb** button |
 | **Swap Hold** | Press `[C]` or Click Hold Box | Tap **Hold [C]** button |
+| **Quantum Swap** | Press `[S]` or Click Swap Slot | Tap **Swap [S]** button |
 | **Unleash Frenzy** | Press `[F]` or Click **⚡ Frenzy!** | Tap **⚡ Frenzy!** button |
+| **Fullscreen Mode** | Click Expand Icon (top right) | Tap Expand Icon (top right) |
 | **Restart** | Press `[R]` or Click Refresh Icon | Refresh Icon |
 
 ---
