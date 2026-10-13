@@ -350,39 +350,53 @@
 
     // Processing impact when projectile hits target
     function handleProjectileLanding() {
-        const p = activeProjectile;
-        activeProjectile = null;
+        try {
+            const p = activeProjectile;
+            activeProjectile = null;
 
-        const col = p.col;
-        const orb = p.orb;
-
-        if (orb.type === 'special') {
-            applySpecialOrb(orb, col, p.impactRow);
-        } else {
-            // Number Orb lands in empty cell at landingRow
-            if (p.landingRow >= 0 && p.landingRow < ROWS) {
-                grid[p.landingRow][col] = createTile(orb.value);
-                const tile = grid[p.landingRow][col];
-                tile.scaleX = 1.25;
-                tile.scaleY = 0.75;
-                tile.flash = 0.6;
+            if (!p) {
+                isProcessing = false;
+                return;
             }
+
+            const col = p.col;
+            const orb = p.orb;
+
+            if (orb.type === 'special') {
+                applySpecialOrb(orb, col, p.impactRow);
+            } else {
+                // Number Orb lands in empty cell at landingRow
+                if (p.landingRow >= 0 && p.landingRow < ROWS) {
+                    grid[p.landingRow][col] = createTile(orb.value);
+                    const tile = grid[p.landingRow][col];
+                    if (tile) {
+                        tile.scaleX = 1.25;
+                        tile.scaleY = 0.75;
+                        tile.flash = 0.6;
+                    }
+                }
+            }
+
+            // Manage Frenzy turn duration
+            if (isFrenzyActive) {
+                frenzyTurnsRemaining--;
+                overdriveCharge = Math.max(0, Math.round((frenzyTurnsRemaining / 3) * 100));
+            }
+
+            // Advance queue
+            currentOrb = nextQueue.shift();
+            nextQueue.push(generateOrb());
+            canHold = true;
+            updateHUD();
+
+            // Start cascade resolution pipeline
+            resolveBoardCascades();
+        } catch (err) {
+            console.error('Error during handleProjectileLanding:', err);
+            isProcessing = false;
+            activeProjectile = null;
+            updateHUD();
         }
-
-        // Manage Frenzy turn duration
-        if (isFrenzyActive) {
-            frenzyTurnsRemaining--;
-            overdriveCharge = Math.max(0, Math.round((frenzyTurnsRemaining / 3) * 100));
-        }
-
-        // Advance queue
-        currentOrb = nextQueue.shift();
-        nextQueue.push(generateOrb());
-        canHold = true;
-        updateHUD();
-
-        // Start cascade resolution pipeline
-        resolveBoardCascades();
     }
 
     function applySpecialOrb(orb, col, row) {
@@ -479,58 +493,63 @@
 
     // Cascade Pipeline: Gravity -> Adjacency -> Gravity until stable
     async function resolveBoardCascades(isSwap = false) {
-        let cascadeOccurred = false;
-        let chainStep = 0;
+        try {
+            let cascadeOccurred = false;
+            let chainStep = 0;
+            const maxChainSteps = 40;
 
-        while (true) {
-            // 1. Apply Gravity
-            const fell = applyGravity();
-            if (fell) {
-                await delay(120);
-            }
-
-            // 2. Scan Adjacency Matches
-            const matchFound = scanAndResolveMatches(chainStep);
-            if (matchFound) {
-                cascadeOccurred = true;
-                chainStep++;
-                combo++;
-                if (combo > maxCombo) maxCombo = combo;
-                if (combo >= 2) {
-                    checkBountyProgress('cascade', 1);
+            while (chainStep < maxChainSteps) {
+                // 1. Apply Gravity
+                const fell = applyGravity();
+                if (fell) {
+                    await delay(120);
                 }
-                updateHUD();
-                await delay(220);
-                continue; // Re-check gravity and subsequent cascades
+
+                // 2. Scan Adjacency Matches
+                const matchFound = scanAndResolveMatches(chainStep);
+                if (matchFound) {
+                    cascadeOccurred = true;
+                    chainStep++;
+                    combo++;
+                    if (combo > maxCombo) maxCombo = combo;
+                    if (combo >= 2) {
+                        checkBountyProgress('cascade', 1);
+                    }
+                    updateHUD();
+                    await delay(220);
+                    continue; // Re-check gravity and subsequent cascades
+                }
+
+                // If no fell and no matches, board is in equilibrium!
+                break;
             }
 
-            // If no fell and no matches, board is in equilibrium!
-            break;
-        }
+            // End of player turn actions:
+            if (!cascadeOccurred) {
+                combo = 1;
+                updateHUD();
+            }
 
-        // End of player turn actions:
-        if (!cascadeOccurred) {
-            combo = 1;
+            if (!isSwap) {
+                movesUntilRise--;
+                if (movesUntilRise <= 0) {
+                    movesUntilRise = MOVES_PER_RISE;
+                    await pushRisingRow();
+                }
+            }
+
+            if (isFrenzyActive && frenzyTurnsRemaining <= 0) {
+                isFrenzyActive = false;
+                overdriveCharge = 0;
+                addFloatingText('Frenzy Concluded', canvas.width / (2 * dpr), boardOffsetY + cellH * 3, '#8892b0', 1.1);
+            }
+        } catch (err) {
+            console.error('Error during cascade resolution:', err);
+        } finally {
+            checkGameOver();
+            isProcessing = false;
             updateHUD();
         }
-
-        if (!isSwap) {
-            movesUntilRise--;
-            if (movesUntilRise <= 0) {
-                movesUntilRise = MOVES_PER_RISE;
-                await pushRisingRow();
-            }
-        }
-
-        if (isFrenzyActive && frenzyTurnsRemaining <= 0) {
-            isFrenzyActive = false;
-            overdriveCharge = 0;
-            addFloatingText('Frenzy Concluded', canvas.width / (2 * dpr), boardOffsetY + cellH * 3, '#8892b0', 1.1);
-        }
-
-        checkGameOver();
-        isProcessing = false;
-        updateHUD();
     }
 
     function applyGravity() {
@@ -1389,8 +1408,15 @@
             }
         });
 
+        // Touch Interaction
+        let lastTouchTime = 0;
+        let touchStartX = 0;
+        let touchStartY = 0;
+
         canvas.addEventListener('click', (e) => {
             if (isProcessing || isGameOver) return;
+            if (Date.now() - lastTouchTime < 450) return; // Prevent ghost click on mobile touch
+
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
@@ -1407,11 +1433,10 @@
             }
         });
 
-        // Touch Interaction
-        let touchStartX = 0;
-        let touchStartY = 0;
         canvas.addEventListener('touchstart', (e) => {
             if (isProcessing || isGameOver) return;
+            lastTouchTime = Date.now();
+
             const rect = canvas.getBoundingClientRect();
             touchStartX = e.touches[0].clientX - rect.left;
             touchStartY = e.touches[0].clientY - rect.top;
@@ -1488,6 +1513,28 @@
         btnStart.addEventListener('click', () => modalHelp.classList.remove('visible'));
         btnRestart.addEventListener('click', startNewGame);
         btnPlayAgain.addEventListener('click', startNewGame);
+
+        // Resume audio and unstick processing on tab visibility changes / play breaks
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                lastTime = performance.now();
+                if (sfx) sfx.resume();
+                resizeCanvas();
+                if (isProcessing && !activeProjectile) {
+                    setTimeout(() => {
+                        if (isProcessing && !activeProjectile) {
+                            isProcessing = false;
+                            updateHUD();
+                        }
+                    }, 250);
+                }
+            }
+        });
+
+        window.addEventListener('focus', () => {
+            lastTime = performance.now();
+            if (sfx) sfx.resume();
+        });
     }
 
     // Main Game Loop (60 FPS)
@@ -1508,8 +1555,9 @@
             const p = activeProjectile;
             p.y += p.vy;
             p.vy += 38 * dt * 60; // Gravity acceleration
+            p.lifetime = (p.lifetime || 0) + dt;
 
-            if (p.y >= p.targetY) {
+            if (p.y >= p.targetY || p.lifetime > 2.5) {
                 p.y = p.targetY;
                 handleProjectileLanding();
             }

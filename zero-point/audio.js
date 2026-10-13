@@ -18,9 +18,11 @@ class SoundFX {
     }
 
     resume() {
-        if (this.ctx && this.ctx.state === 'suspended') {
-            this.ctx.resume();
-        }
+        try {
+            if (this.ctx && this.ctx.state === 'suspended') {
+                this.ctx.resume().catch(() => {});
+            }
+        } catch (e) {}
     }
 
     playMove() {
@@ -380,6 +382,35 @@ class SoundFX {
             osc.start(time);
             osc.stop(time + 0.3);
         });
+    }
+
+    playPowerup() {
+        if (this.muted || !this.ctx) return;
+        this.resume();
+        try {
+            const now = this.ctx.currentTime;
+            const freqs = [523.25, 659.25, 783.99, 1046.50];
+            freqs.forEach((freq, idx) => {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                const time = now + idx * 0.05;
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, time);
+                osc.frequency.exponentialRampToValueAtTime(freq * 1.15, time + 0.12);
+
+                gain.gain.setValueAtTime(0.18, time);
+                gain.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(time);
+                osc.stop(time + 0.18);
+            });
+        } catch (e) {
+            // Audio errors should never crash gameplay
+        }
     }
 }
 
