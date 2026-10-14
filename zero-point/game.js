@@ -1425,7 +1425,7 @@
                     targetTile.value = Math.sign(targetTile.value) * Math.floor(Math.abs(targetTile.value) / 2);
                 }
                 targetTile.flash = 1;
-                addFloatingText('FISSION ÷2', boardOffsetX + col * cellW + cellW / 2, boardOffsetY + row * cellH, '#00f2fe');
+                addFloatingText('DIVIDE ÷2', boardOffsetX + col * cellW + cellW / 2, boardOffsetY + row * cellH, '#00f2fe');
             } else if (sub === 'mul2') {
                 targetTile.value = targetTile.value * 2;
                 targetTile.flash = 1;
@@ -3244,7 +3244,7 @@
                     ctx.shadowColor = '#c471ed';
                     ctx.shadowBlur = 8;
                     const specialLabel = sub === 'invert' ? '➜ ± INVERT' :
-                                         sub === 'div2' ? '➜ ÷2 FISSION' : '➜ ×2 AMPLIFY';
+                                         sub === 'div2' ? '➜ ÷2 DIVIDE' : '➜ ×2 AMPLIFY';
                     ctx.fillText(specialLabel, centerX, ghostY - cellH / 2 - 4);
 
                     ctx.globalAlpha = 0.20;

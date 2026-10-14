@@ -48,7 +48,7 @@ When blocks clear and gravity pulls the board downward, newly touching neighbors
 ### 7. Quantum Modifiers
 Rare special orbs appear in your launcher queue:
 * **`[±] Invert`**: Flips positive to negative or negative to positive.
-* **`[÷2] Fission`**: Halves the targeted tile.
+* **`[÷2] Divide`**: Halves the targeted tile.
 * **`[×2] Amplify`**: Doubles the targeted tile.
 * **`[0] Singularity Core`**: Detonates a 3x3 radius immediately.
 
