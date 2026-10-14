@@ -154,7 +154,7 @@
             desc: "Learn Zero Blasts, Merging, Cross Lasers & Tactics step-by-step",
             maxDrops: 99,
             targetDropsForStar: 99,
-            targetScoreForStar: 500,
+            targetScoreForStar: 50,
             objective: {
                 type: 'tutorial',
                 target: 4,
@@ -168,7 +168,7 @@
             desc: "Trigger 3 Zero Blasts (Cancel opposites to zero)",
             maxDrops: 15,
             targetDropsForStar: 10,
-            targetScoreForStar: 2000,
+            targetScoreForStar: 120,
             objective: {
                 type: 'annihilations',
                 target: 3,
@@ -189,7 +189,7 @@
             desc: "Merge same numbers to reach a +4 or higher orb",
             maxDrops: 14,
             targetDropsForStar: 9,
-            targetScoreForStar: 2800,
+            targetScoreForStar: 160,
             objective: {
                 type: 'synthesis_tier',
                 target: 4,
@@ -209,7 +209,7 @@
             desc: "Shatter all 4 Dark Matter obstacles",
             maxDrops: 18,
             targetDropsForStar: 12,
-            targetScoreForStar: 3500,
+            targetScoreForStar: 220,
             objective: {
                 type: 'clear_dark_matter',
                 target: 4,
@@ -233,7 +233,7 @@
             desc: "Fire a Cross Laser (Cancel a ±4 or higher pair)",
             maxDrops: 16,
             targetDropsForStar: 11,
-            targetScoreForStar: 4200,
+            targetScoreForStar: 260,
             objective: {
                 type: 'trigger_laser',
                 target: 1,
@@ -259,7 +259,7 @@
             desc: "Charge Overdrive to 100% & unleash Singularity Frenzy",
             maxDrops: 20,
             targetDropsForStar: 14,
-            targetScoreForStar: 6000,
+            targetScoreForStar: 350,
             objective: {
                 type: 'activate_frenzy',
                 target: 1,
@@ -782,9 +782,9 @@
         saveCareerData();
 
         if (victoryTitle) victoryTitle.textContent = "Academy Training Complete! 🎓";
-        if (vicScore) vicScore.textContent = (score + 1000).toLocaleString();
+        if (vicScore) vicScore.textContent = (score + 100).toLocaleString();
         if (vicDrops) vicDrops.textContent = "Passed (4/4)";
-        if (vicBonus) vicBonus.textContent = "+1,000 Graduation Bonus";
+        if (vicBonus) vicBonus.textContent = "+100 Graduation Bonus";
         if (vicCascade) vicCascade.textContent = `${maxCombo}x`;
 
         if (victoryStarsContainer) {
@@ -1396,7 +1396,7 @@
             }
 
             addFloatingText('⚫ GRAVITATIONAL CRUSH!', boardOffsetX + col * cellW + cellW / 2, boardOffsetY + cellH * 2.5, '#ffd700', 1.4);
-            addScore(1500);
+            addScore(100);
         } else if (sub === 'supernova_core') {
             // Supernova Core: Detonates Tier 4 Supernova Crater at target area
             sfx.playAnnihilate(combo, 4);
@@ -1407,7 +1407,7 @@
             const epicR = Math.max(0, Math.min(ROWS - 1, row >= 0 ? row : ROWS - 1));
             damageSupernovaArea(epicR, col, epicR, col);
             addFloatingText('🌟 SUPERNOVA CORE!', boardOffsetX + col * cellW + cellW / 2, boardOffsetY + epicR * cellH, '#ffd700', 1.45);
-            addScore(1600);
+            addScore(120);
         } else if (sub === 'antimatter_nuke') {
             // Antimatter Nuke: Heavy 3x3 blast
             sfx.playAnnihilate(combo, 3);
@@ -1415,7 +1415,7 @@
             const epicR = Math.max(0, Math.min(ROWS - 1, row >= 0 ? row : ROWS - 1));
             damageSupernovaArea(epicR, col, epicR, col);
             addFloatingText('💥 ANTIMATTER NUKE!', boardOffsetX + col * cellW + cellW / 2, boardOffsetY + epicR * cellH, '#ff4e50', 1.35);
-            addScore(1400);
+            addScore(90);
         } else if (sub === 'zero') {
             // Singularity Bomb: clears 3x3 radius
             sfx.playAnnihilate(3);
@@ -1429,7 +1429,7 @@
                 }
             }
             addFloatingText('0 SINGULARITY!', boardOffsetX + col * cellW + cellW / 2, boardOffsetY + row * cellH, '#c471ed');
-            addScore(500);
+            addScore(40);
         } else if (targetTile) {
             sfx.playSpecial();
             if (sub === 'invert') {
@@ -1609,7 +1609,7 @@
                         (xA + xB) / 2, 
                         (yA + yB) / 2 - cellH * 0.2, 
                         fusedVal > 0 ? 'var(--cyan)' : 'var(--orange)');
-                    addScore(100 * (chainStep + 1));
+                    addScore(5 * (chainStep + 1));
                     addOverdriveCharge(2);
                     checkBountyProgress('synthesis', 1);
 
@@ -1862,8 +1862,8 @@
             addFloatingText(bannerText, x, y + 20, bannerColor, bannerScale);
         }
 
-        // Tier-scaled score bonus (Base 50 for Tier 1)
-        const baseScore = 50 * Math.pow(2, tier - 1);
+        // Tier-scaled score bonus (Base 10 for Tier 1)
+        const baseScore = 10 * Math.pow(2, tier - 1);
         addScore(baseScore * combo * (chainStep + 1));
 
         // Balanced Overdrive charge: Tier 1 (+2%), Tier 2 (+4%), Tier 3 (+7%), Tier 4 (+12%), Tier 5 (+18%)
@@ -1901,7 +1901,7 @@
                 const val = (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 4) + 1);
                 grid[r][c] = createTile(val);
                 addFloatingText('SHATTERED!', nx, ny, '#fff');
-                addScore(150);
+                addScore(15);
                 checkAdventureObjective('clear_dark_matter', 1);
             } else {
                 target.flash = 0.8;
@@ -2136,7 +2136,7 @@
         const totalStars = star1 + star2 + star3;
 
         const dropsLeft = Math.max(0, maxDrops - dropsUsed);
-        const dropBonus = dropsLeft * 200;
+        const dropBonus = dropsLeft * 20;
         const finalScore = score + dropBonus;
         score = finalScore;
         scoreVal.textContent = score.toLocaleString();
@@ -2244,60 +2244,60 @@
             title: 'Cross Laser Blast',
             desc: 'Detonate a ±4+ pair for a Tier 3+ Cross Laser',
             target: 1,
-            rewardScore: 500,
+            rewardScore: 40,
             rewardSwap: 1,
             rewardOvd: 8,
-            rewardText: '+500 PTS • +1 SWAP'
+            rewardText: '+40 PTS • +1 SWAP'
         },
         {
             id: 'supernova',
             title: 'Supernova Crater',
             desc: 'Trigger a Tier 4+ Supernova (±8 or higher)',
             target: 1,
-            rewardScore: 800,
+            rewardScore: 60,
             rewardSwap: 1,
             rewardOvd: 12,
-            rewardText: '+800 PTS • +1 SWAP'
+            rewardText: '+60 PTS • +1 SWAP'
         },
         {
             id: 'synthesis',
             title: 'Double Merge',
             desc: 'Merge identical numbers 2 times (e.g. +2 & +2)',
             target: 2,
-            rewardScore: 400,
+            rewardScore: 30,
             rewardSwap: 1,
             rewardOvd: 6,
-            rewardText: '+400 PTS • +1 SWAP'
+            rewardText: '+30 PTS • +1 SWAP'
         },
         {
             id: 'cascade',
             title: 'Cascade Surge',
             desc: 'Trigger a 2x or higher combo cascade chain',
             target: 1,
-            rewardScore: 600,
+            rewardScore: 45,
             rewardSwap: 1,
             rewardOvd: 8,
-            rewardText: '+600 PTS • +1 SWAP'
+            rewardText: '+45 PTS • +1 SWAP'
         },
         {
             id: 'dark_matter',
             title: 'Dark Matter Breach',
             desc: 'Damage or shatter 3 Dark Matter cores',
             target: 3,
-            rewardScore: 500,
+            rewardScore: 40,
             rewardSwap: 1,
             rewardOvd: 8,
-            rewardText: '+500 PTS • +1 SWAP'
+            rewardText: '+40 PTS • +1 SWAP'
         },
         {
             id: 'frenzy',
             title: 'Singularity Overdrive',
             desc: 'Activate Singularity Frenzy mode [F]',
             target: 1,
-            rewardScore: 750,
+            rewardScore: 50,
             rewardSwap: 1,
             rewardOvd: 0,
-            rewardText: '+750 PTS • +1 SWAP'
+            rewardText: '+50 PTS • +1 SWAP'
         }
     ];
 
