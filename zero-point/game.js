@@ -1043,6 +1043,13 @@
         setupScreenFlow();
 
         showScreen('home');
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => {
+                if (currentScreen === 'game') {
+                    render();
+                }
+            });
+        }
         requestAnimationFrame(gameLoop);
     }
 
@@ -2611,11 +2618,13 @@
             holdText.style.color = heldOrb.type === 'special' ? (heldOrb.subType === 'blackhole' ? '#ffd700' : 'var(--purple)') :
                                   (heldOrb.value > 0 ? 'var(--cyan)' : 'var(--orange)');
             holdText.style.fontSize = (heldOrb.label && heldOrb.label.length > 2) ? '1.05rem' : '1.25rem';
+            holdText.style.fontWeight = (heldOrb.label === '±' || (heldOrb.label && heldOrb.label.startsWith('÷'))) ? '700' : '900';
             holdSlot.classList.add('active');
         } else {
             holdText.textContent = '-';
             holdText.style.color = 'var(--text-muted)';
             holdText.style.fontSize = '1.25rem';
+            holdText.style.fontWeight = '900';
             holdSlot.classList.remove('active');
         }
 
@@ -2634,8 +2643,10 @@
              orb.subType === 'antimatter_nuke' ? 'var(--orange)' : 'var(--purple)') :
             (orb.value > 0 ? 'var(--cyan)' : 'var(--orange)');
 
+        const isSpecialOp = orb.label === '±' || (orb.label && orb.label.startsWith('÷'));
+        const fontWeight = isSpecialOp ? '700' : '900';
         const fontSize = (orb.label && orb.label.length > 2) ? '1.05rem' : '1.25rem';
-        element.innerHTML = `<span class="queue-orb-label" style="font-size: ${fontSize}; color: ${color};">${orb.label}</span>`;
+        element.innerHTML = `<span class="queue-orb-label" style="font-size: ${fontSize}; font-weight: ${fontWeight}; color: ${color};">${orb.label}</span>`;
     }
 
     // Input Handlers
@@ -3225,7 +3236,7 @@
                     ctx.shadowBlur = 8;
                     ctx.strokeRect(boardOffsetX + col * cellW + 4, boardOffsetY + topRow * cellH + 4, cellW - 8, cellH - 8);
 
-                    ctx.font = '800 11px Inter, sans-serif';
+                    ctx.font = "700 11px 'Lato', 'Inter', sans-serif";
                     ctx.textAlign = 'center';
                     ctx.fillStyle = '#ffffff';
                     ctx.shadowColor = '#c471ed';
@@ -3317,7 +3328,7 @@
                     ctx.strokeRect(cellLeft + 4, cellTop + 4, cellW - 8, cellH - 8);
 
                     ctx.fillStyle = '#ffffff';
-                    ctx.font = '800 11px Inter, sans-serif';
+                    ctx.font = "800 11px 'Lato', 'Inter', sans-serif";
                     ctx.textAlign = 'center';
                     ctx.shadowColor = synthColor;
                     ctx.shadowBlur = 8;
@@ -3688,12 +3699,15 @@
         if (isGhost) {
             ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         }
+        // Use Lato for clean, unambiguous numbers and distinct ± and ÷ glyphs
+        const isSpecialOp = (label === '±' || (label && label.startsWith('÷')));
+        const weight = isSpecialOp ? '700' : '900';
         if (label.length > 5) {
-            ctx.font = '900 0.82rem Inter, sans-serif';
+            ctx.font = `${weight} 0.82rem 'Lato', 'Inter', sans-serif`;
         } else if (label.length > 2) {
-            ctx.font = '900 1.05rem Inter, sans-serif';
+            ctx.font = `${weight} 1.05rem 'Lato', 'Inter', sans-serif`;
         } else {
-            ctx.font = '900 1.25rem Inter, sans-serif';
+            ctx.font = `${weight} 1.25rem 'Lato', 'Inter', sans-serif`;
         }
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -3838,7 +3852,7 @@
         for (const ft of floatingTexts) {
             ctx.save();
             ctx.globalAlpha = Math.max(0, ft.alpha);
-            ctx.font = `900 ${14 * (ft.scale || 1)}px Inter, sans-serif`;
+            ctx.font = `900 ${14 * (ft.scale || 1)}px 'Lato', 'Inter', sans-serif`;
             ctx.fillStyle = ft.color;
             ctx.textAlign = 'center';
             ctx.shadowColor = ft.color;

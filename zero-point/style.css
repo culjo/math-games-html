@@ -13,6 +13,7 @@
     --danger: #ff2a5f;
     --danger-glow: rgba(255, 42, 95, 0.5);
     --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-numbers: 'Lato', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 * {
@@ -159,6 +160,7 @@ header {
 }
 
 .stat-pill .value {
+    font-family: var(--font-numbers);
     font-size: 1.2rem;
     font-weight: 800;
     color: var(--text-primary);
@@ -210,6 +212,7 @@ header {
 }
 
 .overdrive-percent {
+    font-family: var(--font-numbers);
     font-size: 0.75rem;
     font-weight: 900;
     color: var(--cyan);
@@ -309,6 +312,7 @@ header {
 }
 
 #hold-text {
+    font-family: var(--font-numbers);
     font-size: 1.25rem;
     font-weight: 900;
     letter-spacing: -0.5px;
@@ -324,6 +328,7 @@ header {
 }
 
 .swap-slot {
+    font-family: var(--font-numbers);
     border-color: rgba(0, 242, 254, 0.35);
     color: var(--cyan);
     font-weight: 900;
@@ -331,6 +336,7 @@ header {
 }
 
 .swap-token-text {
+    font-family: var(--font-numbers);
     font-size: 1.15rem;
     font-weight: 900;
     letter-spacing: 0.5px;
@@ -409,6 +415,7 @@ header {
 }
 
 .bounty-reward {
+    font-family: var(--font-numbers);
     font-size: 0.68rem;
     font-weight: 800;
     color: var(--gold);
@@ -427,6 +434,7 @@ header {
 }
 
 .bounty-progress-text {
+    font-family: var(--font-numbers);
     font-weight: 800;
     color: var(--cyan);
 }
@@ -455,6 +463,7 @@ header {
 }
 
 .queue-orb-label {
+    font-family: var(--font-numbers);
     font-weight: 900;
     font-size: 1.25rem;
     letter-spacing: -0.5px;
@@ -469,6 +478,7 @@ header {
 }
 
 .counter-ring {
+    font-family: var(--font-numbers);
     font-size: 0.98rem;
     font-weight: 900;
     color: var(--orange);
@@ -819,9 +829,11 @@ canvas {
 }
 
 .game-over-card .num {
+    font-family: var(--font-numbers);
     font-size: 1.6rem;
     font-weight: 900;
     color: var(--cyan);
+    font-variant-numeric: tabular-nums;
 }
 
 
@@ -1228,6 +1240,7 @@ canvas {
 }
 
 .level-num-badge {
+    font-family: var(--font-numbers);
     font-size: 0.72rem;
     font-weight: 900;
     background: rgba(0, 242, 254, 0.15);
@@ -1339,6 +1352,7 @@ canvas {
 }
 
 .adv-obj-progress {
+    font-family: var(--font-numbers);
     color: var(--gold);
     font-weight: 800;
     font-variant-numeric: tabular-nums;
@@ -1469,6 +1483,7 @@ canvas {
 }
 
 .codex-orb {
+    font-family: var(--font-numbers);
     padding: 8px 14px;
     border-radius: 10px;
     font-weight: 900;
@@ -1497,8 +1512,9 @@ canvas {
 }
 
 .codex-op {
+    font-family: var(--font-numbers);
     font-size: 1.3rem;
-    font-weight: 900;
+    font-weight: 700;
     color: #ffffff;
 }
 
@@ -1516,6 +1532,7 @@ canvas {
 }
 
 .tier-pill {
+    font-family: var(--font-numbers);
     font-weight: 900;
     font-size: 0.78rem;
     padding: 4px 10px;
@@ -1546,6 +1563,7 @@ canvas {
 }
 
 .special-icon {
+    font-family: var(--font-numbers);
     width: 38px;
     height: 38px;
     border-radius: 10px;
@@ -1553,7 +1571,8 @@ canvas {
     align-items: center;
     justify-content: center;
     font-size: 1.1rem;
-    font-weight: 900;
+    font-weight: 700;
+    letter-spacing: 0.5px;
     flex-shrink: 0;
 }
 
@@ -1700,6 +1719,7 @@ canvas {
 }
 
 .vic-stat-card .num {
+    font-family: var(--font-numbers);
     font-size: 1.25rem;
     font-weight: 900;
     color: #ffffff;
@@ -1926,6 +1946,7 @@ input:checked + .toggle-slider:before {
 }
 
 .tutorial-badge {
+    font-family: var(--font-numbers);
     font-size: 0.7rem;
     font-weight: 900;
     background: rgba(0, 242, 254, 0.2);
