@@ -99,7 +99,9 @@
     // Falling Projectile Animation
     let activeProjectile = null; // { col, startY, targetY, y, vy, orb, targetRow, isImpact }
 
-    // Visual Effects
+    // Visual Effects & Active Dynamic Animations
+    let activeMergeAnimations = [];
+    let activeZeroPointCollapses = [];
     let particles = [];
     let shockwaves = [];
     let laserBeams = [];
@@ -190,6 +192,8 @@
         particles = [];
         shockwaves = [];
         laserBeams = [];
+        activeMergeAnimations = [];
+        activeZeroPointCollapses = [];
         screenFlash = 0;
         floatingTexts = [];
         activeProjectile = null;
@@ -234,6 +238,7 @@
             scaleX: 1,
             scaleY: 1,
             flash: 0,
+            animX: 0,
             animY: 0
         };
     }
@@ -370,10 +375,24 @@
                     grid[p.landingRow][col] = createTile(orb.value);
                     const tile = grid[p.landingRow][col];
                     if (tile) {
-                        tile.scaleX = 1.25;
-                        tile.scaleY = 0.75;
-                        tile.flash = 0.6;
+                        tile.scaleX = 1.35;
+                        tile.scaleY = 0.68;
+                        tile.flash = 0.85;
                     }
+
+                    // Impact ground shockwave ripple & sparks
+                    const landX = boardOffsetX + col * cellW + cellW / 2;
+                    const landY = boardOffsetY + p.landingRow * cellH + cellH / 2;
+                    shockwaves.push({
+                        x: landX,
+                        y: landY + cellH * 0.35,
+                        radius: 6,
+                        maxRadius: cellW * 0.95,
+                        alpha: 0.85,
+                        color: orb.value > 0 ? '#00f2fe' : '#ff4e50'
+                    });
+                    createSparks(landX, landY + cellH * 0.32, '#ffffff', 8);
+                    triggerScreenShake(3);
                 }
             }
 
@@ -498,15 +517,18 @@
             let chainStep = 0;
             const maxChainSteps = 40;
 
+            // Initial settle pause so player clearly sees the landed orb / swapped tile
+            await delay(120);
+
             while (chainStep < maxChainSteps) {
-                // 1. Apply Gravity
+                // 1. Apply Gravity with smooth downward slide
                 const fell = applyGravity();
                 if (fell) {
-                    await delay(120);
+                    await delay(160);
                 }
 
-                // 2. Scan Adjacency Matches
-                const matchFound = scanAndResolveMatches(chainStep);
+                // 2. Scan Adjacency Matches with animated merges and collapses
+                const matchFound = await scanAndResolveMatches(chainStep);
                 if (matchFound) {
                     cascadeOccurred = true;
                     chainStep++;
@@ -516,7 +538,7 @@
                         checkBountyProgress('cascade', 1);
                     }
                     updateHUD();
-                    await delay(220);
+                    await delay(120);
                     continue; // Re-check gravity and subsequent cascades
                 }
 
@@ -562,8 +584,9 @@
                     while (dropTo + 1 < ROWS && !grid[dropTo + 1][c]) {
                         dropTo++;
                     }
-                    grid[dropTo][c] = grid[r][c];
-                    grid[dropTo][c].scaleY = 1.15;
+                    const tile = grid[r][c];
+                    grid[dropTo][c] = tile;
+                    tile.animY = -(dropTo - r) * cellH; // Smooth downward slide from original height
                     grid[r][c] = null;
                     moved = true;
                 }
@@ -572,7 +595,94 @@
         return moved;
     }
 
-    function scanAndResolveMatches(chainStep) {
+    function playSynthesisMergeAnim(rA, cA, rB, cB, tileA, tileB, fusedVal, chainStep) {
+        return new Promise(resolvePromise => {
+            // Temporarily clear grid slots so drawTiles() doesn't render static copies
+            grid[rA][cA] = null;
+            grid[rB][cB] = null;
+
+            const xA = boardOffsetX + cA * cellW + cellW / 2;
+            const yA = boardOffsetY + rA * cellH + cellH / 2;
+            const xB = boardOffsetX + cB * cellW + cellW / 2;
+            const yB = boardOffsetY + rB * cellH + cellH / 2;
+
+            activeMergeAnimations.push({
+                rA, cA, rB, cB,
+                xA, yA, xB, yB,
+                tileA: { ...tileA },
+                tileB: { ...tileB },
+                fusedVal,
+                chainStep,
+                duration: 0.22,
+                elapsed: 0,
+                progress: 0,
+                onComplete: () => {
+                    // Place new fused tile at (rB, cB) with squash/stretch pop & white flash
+                    grid[rB][cB] = createTile(fusedVal);
+                    grid[rB][cB].flash = 1;
+                    grid[rB][cB].scaleX = 1.45;
+                    grid[rB][cB].scaleY = 1.45;
+
+                    sfx.playMerge(fusedVal);
+                    shockwaves.push({
+                        x: xB,
+                        y: yB,
+                        radius: 8,
+                        maxRadius: cellW * 1.5,
+                        alpha: 1,
+                        color: fusedVal > 0 ? '#00f2fe' : '#ff4e50'
+                    });
+                    createSparks(xB, yB, fusedVal > 0 ? '#00f2fe' : '#ff4e50', 14);
+
+                    addFloatingText(`${tileA.value} + ${tileB.value} = ${fusedVal}`, 
+                        (xA + xB) / 2, 
+                        (yA + yB) / 2 - cellH * 0.2, 
+                        fusedVal > 0 ? 'var(--cyan)' : 'var(--orange)');
+                    addScore(100 * (chainStep + 1));
+                    addOverdriveCharge(2);
+                    checkBountyProgress('synthesis', 1);
+
+                    resolvePromise();
+                }
+            });
+        });
+    }
+
+    function playZeroPointCollapseAnim(rA, cA, rB, cB, tileA, tileB, magnitude, chainStep) {
+        return new Promise(resolvePromise => {
+            // Clear grid slots
+            grid[rA][cA] = null;
+            grid[rB][cB] = null;
+
+            const xA = boardOffsetX + cA * cellW + cellW / 2;
+            const yA = boardOffsetY + rA * cellH + cellH / 2;
+            const xB = boardOffsetX + cB * cellW + cellW / 2;
+            const yB = boardOffsetY + rB * cellH + cellH / 2;
+            const midX = (xA + xB) / 2;
+            const midY = (yA + yB) / 2;
+
+            sfx.playSingularitySuction();
+
+            activeZeroPointCollapses.push({
+                rA, cA, rB, cB,
+                xA, yA, xB, yB,
+                midX, midY,
+                tileA: { ...tileA },
+                tileB: { ...tileB },
+                magnitude,
+                chainStep,
+                duration: 0.24,
+                elapsed: 0,
+                progress: 0,
+                onComplete: () => {
+                    triggerZeroPointBlast(rA, cA, `${tileA.value} + (${tileB.value}) = 0!`, chainStep, magnitude, rB, cB);
+                    resolvePromise();
+                }
+            });
+        });
+    }
+
+    async function scanAndResolveMatches(chainStep) {
         // Priority 1: ZERO POINT ANNIHILATION (Opposites: A + B == 0)
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
@@ -585,9 +695,7 @@
                     if (tileB && tileB.type === 'number' && tileA.value + tileB.value === 0) {
                         totalZeroPoints++;
                         const magnitude = Math.abs(tileA.value);
-                        triggerZeroPointBlast(r, c, `${tileA.value} + (${tileB.value}) = 0!`, chainStep, magnitude, r, c + 1);
-                        grid[r][c] = null;
-                        grid[r][c + 1] = null;
+                        await playZeroPointCollapseAnim(r, c, r, c + 1, tileA, tileB, magnitude, chainStep);
                         return true;
                     }
                 }
@@ -598,9 +706,7 @@
                     if (tileB && tileB.type === 'number' && tileA.value + tileB.value === 0) {
                         totalZeroPoints++;
                         const magnitude = Math.abs(tileA.value);
-                        triggerZeroPointBlast(r, c, `${tileA.value} + (${tileB.value}) = 0!`, chainStep, magnitude, r + 1, c);
-                        grid[r][c] = null;
-                        grid[r + 1][c] = null;
+                        await playZeroPointCollapseAnim(r, c, r + 1, c, tileA, tileB, magnitude, chainStep);
                         return true;
                     }
                 }
@@ -618,18 +724,7 @@
                     const tileB = grid[r][c + 1];
                     if (tileB && tileB.type === 'number' && tileA.value === tileB.value) {
                         const fusedVal = tileA.value * 2;
-                        grid[r][c] = null;
-                        grid[r][c + 1] = createTile(fusedVal);
-                        grid[r][c + 1].flash = 1;
-                        grid[r][c + 1].scaleX = 1.3;
-                        sfx.playMerge(fusedVal);
-                        addFloatingText(`${tileA.value} + ${tileB.value} = ${fusedVal}`, 
-                            boardOffsetX + (c + 0.5) * cellW, 
-                            boardOffsetY + r * cellH, 
-                            fusedVal > 0 ? 'var(--cyan)' : 'var(--orange)');
-                        addScore(100 * (chainStep + 1));
-                        addOverdriveCharge(2);
-                        checkBountyProgress('synthesis', 1);
+                        await playSynthesisMergeAnim(r, c, r, c + 1, tileA, tileB, fusedVal, chainStep);
                         return true;
                     }
                 }
@@ -639,18 +734,7 @@
                     const tileB = grid[r + 1][c];
                     if (tileB && tileB.type === 'number' && tileA.value === tileB.value) {
                         const fusedVal = tileA.value * 2;
-                        grid[r][c] = null;
-                        grid[r + 1][c] = createTile(fusedVal);
-                        grid[r + 1][c].flash = 1;
-                        grid[r + 1][c].scaleY = 1.3;
-                        sfx.playMerge(fusedVal);
-                        addFloatingText(`${tileA.value} + ${tileB.value} = ${fusedVal}`, 
-                            boardOffsetX + c * cellW + cellW / 2, 
-                            boardOffsetY + (r + 0.5) * cellH, 
-                            fusedVal > 0 ? 'var(--cyan)' : 'var(--orange)');
-                        addScore(100 * (chainStep + 1));
-                        addOverdriveCharge(2);
-                        checkBountyProgress('synthesis', 1);
+                        await playSynthesisMergeAnim(r, c, r + 1, c, tileA, tileB, fusedVal, chainStep);
                         return true;
                     }
                 }
@@ -1183,6 +1267,18 @@
             grid[r1][c1] = t2;
             grid[r][c] = t1;
 
+            // Smooth sliding animation for swap
+            if (t2) {
+                t2.animX = (c - c1) * cellW;
+                t2.animY = (r - r1) * cellH;
+                t2.flash = 0.8;
+            }
+            if (t1) {
+                t1.animX = (c1 - c) * cellW;
+                t1.animY = (r1 - r) * cellH;
+                t1.flash = 0.8;
+            }
+
             swapTokens = Math.max(0, swapTokens - 1);
             sfx.playQuantumSwap();
 
@@ -1614,15 +1710,51 @@
             }
         }
 
-        // Tile squash/stretch return to 1
+        // Active Merge Animations update
+        for (let i = activeMergeAnimations.length - 1; i >= 0; i--) {
+            const a = activeMergeAnimations[i];
+            a.elapsed += dt;
+            a.progress = Math.min(1, a.elapsed / a.duration);
+            if (a.progress >= 1) {
+                if (a.onComplete) a.onComplete();
+                activeMergeAnimations.splice(i, 1);
+            }
+        }
+
+        // Active Zero Point Collapse Animations update
+        for (let i = activeZeroPointCollapses.length - 1; i >= 0; i--) {
+            const a = activeZeroPointCollapses[i];
+            a.elapsed += dt;
+            a.progress = Math.min(1, a.elapsed / a.duration);
+            if (a.progress >= 1) {
+                if (a.onComplete) a.onComplete();
+                activeZeroPointCollapses.splice(i, 1);
+            }
+        }
+
+        // Tile squash/stretch & positional slide return to 0/1
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
                 const t = grid[r][c];
                 if (t) {
-                    t.scaleX += (1 - t.scaleX) * 10 * dt;
-                    t.scaleY += (1 - t.scaleY) * 10 * dt;
+                    t.scaleX += (1 - t.scaleX) * 12 * dt;
+                    t.scaleY += (1 - t.scaleY) * 12 * dt;
+                    if (t.animY !== 0) {
+                        t.animY += (0 - t.animY) * Math.min(1, 22 * dt);
+                        if (Math.abs(t.animY) < 1.0) {
+                            t.animY = 0;
+                            t.scaleX = 1.15;
+                            t.scaleY = 0.85;
+                        }
+                    }
+                    if (t.animX !== 0) {
+                        t.animX += (0 - t.animX) * Math.min(1, 22 * dt);
+                        if (Math.abs(t.animX) < 1.0) {
+                            t.animX = 0;
+                        }
+                    }
                     if (t.flash > 0) {
-                        t.flash = Math.max(0, t.flash - 3 * dt);
+                        t.flash = Math.max(0, t.flash - 3.5 * dt);
                     }
                 }
             }
@@ -1654,6 +1786,9 @@
 
         // 3. Draw Board Tiles
         drawTiles();
+
+        // 3.2 Draw Active Merge & Collapse Animations (tethers, sliding orbs, vortices)
+        drawMergeAndCollapseAnimations();
 
         // 3.5 Draw Swap Mode Selection Highlights
         drawSwapModeHighlights();
@@ -2055,8 +2190,8 @@
                 const tile = grid[r][c];
                 if (!tile) continue;
 
-                const x = boardOffsetX + c * cellW + cellW / 2;
-                const y = boardOffsetY + r * cellH + cellH / 2;
+                const x = boardOffsetX + c * cellW + cellW / 2 + (tile.animX || 0);
+                const y = boardOffsetY + r * cellH + cellH / 2 + (tile.animY || 0);
                 const tw = (cellW - 8) * tile.scaleX;
                 const th = (cellH - 8) * tile.scaleY;
 
@@ -2067,6 +2202,159 @@
                     const label = tile.value > 0 ? `+${tile.value}` : `${tile.value}`;
                     drawTileGraphic(x, y, tw, th, label, flavor, tile.flash);
                 }
+            }
+        }
+    }
+
+    function drawMergeAndCollapseAnimations() {
+        // 1. Draw Active Synthesis Merges
+        for (const anim of activeMergeAnimations) {
+            const t = anim.progress;
+            const ease = t * t * (3 - 2 * t); // smooth cubic curve
+            const curAX = anim.xA + (anim.xB - anim.xA) * ease;
+            const curAY = anim.yA + (anim.yB - anim.yA) * ease;
+
+            const scaleA = Math.max(0.65, 1.0 - ease * 0.28);
+            const scaleB = 1.0 + Math.sin(t * Math.PI) * 0.22;
+
+            const flavorA = anim.tileA.value > 0 ? 'pos' : 'neg';
+            const flavorB = anim.tileB.value > 0 ? 'pos' : 'neg';
+            const labelA = anim.tileA.value > 0 ? `+${anim.tileA.value}` : `${anim.tileA.value}`;
+            const labelB = anim.tileB.value > 0 ? `+${anim.tileB.value}` : `${anim.tileB.value}`;
+            const beamColor = anim.fusedVal > 0 ? '#00f2fe' : '#ff4e50';
+
+            // Energy fusion tether line connecting sliding A to target B
+            ctx.save();
+            ctx.strokeStyle = beamColor;
+            ctx.lineWidth = 3.5 + Math.sin(t * Math.PI * 5) * 1.5;
+            ctx.shadowColor = beamColor;
+            ctx.shadowBlur = 12;
+            ctx.setLineDash([6, 4]);
+            ctx.lineDashOffset = -anim.elapsed * 140;
+            ctx.beginPath();
+            ctx.moveTo(curAX, curAY);
+            ctx.lineTo(anim.xB, anim.yB);
+            ctx.stroke();
+            ctx.restore();
+
+            // Pulsing absorption halo around target B
+            ctx.save();
+            const haloGrad = ctx.createRadialGradient(anim.xB, anim.yB, 4, anim.xB, anim.yB, (cellW / 1.7) * scaleB);
+            haloGrad.addColorStop(0, anim.fusedVal > 0 ? 'rgba(0, 242, 254, 0.45)' : 'rgba(255, 78, 80, 0.45)');
+            haloGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = haloGrad;
+            ctx.beginPath();
+            ctx.arc(anim.xB, anim.yB, (cellW / 1.7) * scaleB, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw target Tile B (pulsing with absorption energy)
+            const twB = (cellW - 8) * scaleB;
+            const thB = (cellH - 8) * scaleB;
+            drawTileGraphic(anim.xB, anim.yB, twB, thB, labelB, flavorB, 0.35 * Math.sin(t * Math.PI));
+
+            // Draw moving Tile A (sliding with luminous wake)
+            const twA = (cellW - 8) * scaleA;
+            const thA = (cellH - 8) * scaleA;
+            drawTileGraphic(curAX, curAY, twA, thA, labelA, flavorA, 0.45);
+            ctx.restore();
+
+            // Spawn fusion spark trail
+            if (Math.random() < 0.65) {
+                particles.push({
+                    x: curAX + (Math.random() - 0.5) * 12,
+                    y: curAY + (Math.random() - 0.5) * 12,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: (Math.random() - 0.5) * 2,
+                    alpha: 0.85,
+                    decay: 0.045,
+                    color: beamColor
+                });
+            }
+        }
+
+        // 2. Draw Active Zero Point Singularity Collapses
+        for (const anim of activeZeroPointCollapses) {
+            const t = anim.progress;
+            const ease = t * t; // quadratic gravitational acceleration
+            const curAX = anim.xA + (anim.midX - anim.xA) * ease;
+            const curAY = anim.yA + (anim.midY - anim.yA) * ease;
+            const curBX = anim.xB + (anim.midX - anim.xB) * ease;
+            const curBY = anim.yB + (anim.midY - anim.yB) * ease;
+
+            const scale = Math.max(0.18, 1.0 - ease * 0.82);
+            const flavorA = anim.tileA.value > 0 ? 'pos' : 'neg';
+            const flavorB = anim.tileB.value > 0 ? 'pos' : 'neg';
+            const labelA = anim.tileA.value > 0 ? `+${anim.tileA.value}` : `${anim.tileA.value}`;
+            const labelB = anim.tileB.value > 0 ? `+${anim.tileB.value}` : `${anim.tileB.value}`;
+
+            // Singularity Accretion Vortex at midpoint
+            ctx.save();
+            const vortexR = (cellW * 0.44) * Math.sin(t * Math.PI * 0.95);
+            const vortexGrad = ctx.createRadialGradient(anim.midX, anim.midY, 2, anim.midX, anim.midY, vortexR + 12);
+            vortexGrad.addColorStop(0, '#000000');
+            vortexGrad.addColorStop(0.45, 'rgba(255, 255, 255, 0.75)');
+            vortexGrad.addColorStop(0.75, 'rgba(0, 242, 254, 0.45)');
+            vortexGrad.addColorStop(1, 'rgba(255, 78, 80, 0)');
+            ctx.fillStyle = vortexGrad;
+            ctx.beginPath();
+            ctx.arc(anim.midX, anim.midY, vortexR + 12, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Dual rotating accretion arms (Cyan and Coral)
+            const spin = anim.elapsed * 22;
+            ctx.lineWidth = 2.8;
+            ctx.shadowBlur = 12;
+
+            // Cyan arm
+            ctx.strokeStyle = '#00f2fe';
+            ctx.shadowColor = '#00f2fe';
+            ctx.beginPath();
+            ctx.arc(anim.midX, anim.midY, vortexR * 0.85, spin, spin + Math.PI * 0.8);
+            ctx.stroke();
+
+            // Coral arm
+            ctx.strokeStyle = '#ff4e50';
+            ctx.shadowColor = '#ff4e50';
+            ctx.beginPath();
+            ctx.arc(anim.midX, anim.midY, vortexR * 0.85, spin + Math.PI, spin + Math.PI * 1.8);
+            ctx.stroke();
+
+            // Electric plasma tether linking the two collapsing orbs
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2.4;
+            ctx.shadowColor = '#00f2fe';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.moveTo(curAX, curAY);
+            ctx.lineTo(anim.midX, anim.midY);
+            ctx.lineTo(curBX, curBY);
+            ctx.stroke();
+            ctx.restore();
+
+            // Draw compressed collapsing orbs
+            ctx.save();
+            const twA = (cellW - 8) * scale;
+            const thA = (cellH - 8) * scale;
+            drawTileGraphic(curAX, curAY, twA, thA, labelA, flavorA, 0.5 + t * 0.5);
+
+            const twB = (cellW - 8) * scale;
+            const thB = (cellH - 8) * scale;
+            drawTileGraphic(curBX, curBY, twB, thB, labelB, flavorB, 0.5 + t * 0.5);
+            ctx.restore();
+
+            // Inward spiral suction sparks
+            if (Math.random() < 0.7) {
+                const angle = Math.random() * Math.PI * 2;
+                const dist = cellW * (0.3 + Math.random() * 0.4);
+                particles.push({
+                    x: anim.midX + Math.cos(angle) * dist,
+                    y: anim.midY + Math.sin(angle) * dist,
+                    vx: -Math.cos(angle) * 3,
+                    vy: -Math.sin(angle) * 3,
+                    alpha: 0.9,
+                    decay: 0.05,
+                    color: Math.random() < 0.5 ? '#00f2fe' : '#ff4e50'
+                });
             }
         }
     }

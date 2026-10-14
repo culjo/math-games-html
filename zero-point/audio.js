@@ -412,6 +412,30 @@ class SoundFX {
             // Audio errors should never crash gameplay
         }
     }
+
+    playSingularitySuction() {
+        if (this.muted || !this.ctx) return;
+        this.resume();
+        try {
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(260, now);
+            osc.frequency.exponentialRampToValueAtTime(65, now + 0.22);
+
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.linearRampToValueAtTime(0.24, now + 0.16);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.23);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.23);
+        } catch (e) {}
+    }
 }
 
 window.soundFX = new SoundFX();
