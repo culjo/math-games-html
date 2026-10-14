@@ -382,6 +382,13 @@
     let isOverdriveReady = false;
     let isFrenzyActive = false;
     let frenzyTurnsRemaining = 0;
+    let pendingOverdriveActivation = false;
+    let frenzySpecialIndex = 0;
+    const FRENZY_SPECIALS = [
+        { type: 'special', subType: 'blackhole', label: '⚫ VORTEX' },
+        { type: 'special', subType: 'supernova_core', label: '🌟 NOVA' },
+        { type: 'special', subType: 'antimatter_nuke', label: '💥 NUKE' }
+    ];
 
     // Quantum Swap State
     let swapTokens = 1;
@@ -1090,6 +1097,8 @@
         isOverdriveReady = false;
         isFrenzyActive = false;
         frenzyTurnsRemaining = 0;
+        pendingOverdriveActivation = false;
+        frenzySpecialIndex = 0;
         swapTokens = 1;
         isSwapModeActive = false;
         firstSwapTile = null;
@@ -1307,10 +1316,9 @@
                 }
             }
 
-            // Manage Frenzy turn duration
+            // Manage Frenzy turn duration (1 special drop)
             if (isFrenzyActive) {
                 frenzyTurnsRemaining--;
-                overdriveCharge = Math.max(0, Math.round((frenzyTurnsRemaining / 3) * 100));
             }
 
             // Advance queue
@@ -1489,13 +1497,17 @@
             if (isFrenzyActive && frenzyTurnsRemaining <= 0) {
                 isFrenzyActive = false;
                 overdriveCharge = 0;
-                addFloatingText('Frenzy Concluded', canvas.width / (2 * dpr), boardOffsetY + cellH * 3, '#8892b0', 1.1);
+                addFloatingText('Overdrive Discharged', canvas.width / (2 * dpr), boardOffsetY + cellH * 3, '#8892b0', 1.1);
             }
         } catch (err) {
             console.error('Error during cascade resolution:', err);
         } finally {
             checkGameOver();
             isProcessing = false;
+            if (pendingOverdriveActivation && !isGameOver) {
+                pendingOverdriveActivation = false;
+                activateOverdrive();
+            }
             updateHUD();
 
             if (isTutorial) {
@@ -2162,47 +2174,39 @@
     function addOverdriveCharge(pts) {
         if (isFrenzyActive) return;
         overdriveCharge = Math.min(100, Math.round(overdriveCharge + pts));
-        if (overdriveCharge >= 100 && !isOverdriveReady) {
-            isOverdriveReady = true;
-            sfx.playOverdriveReady();
-            addFloatingText('⚡ OVERDRIVE READY! Press [F]', canvas.width / (2 * dpr), boardOffsetY + cellH * 2.5, '#ffd700', 1.35);
+        if (overdriveCharge >= 100) {
+            overdriveCharge = 100;
+            if (!isProcessing && !isGameOver) {
+                activateOverdrive();
+            } else {
+                pendingOverdriveActivation = true;
+            }
         }
         updateHUD();
     }
 
     function activateOverdrive() {
-        if (!isOverdriveReady || isFrenzyActive || isProcessing || isGameOver) return;
+        if (isFrenzyActive || isGameOver) return;
 
-        isOverdriveReady = false;
         isFrenzyActive = true;
-        frenzyTurnsRemaining = 3;
+        isOverdriveReady = false;
+        frenzyTurnsRemaining = 1; // Auto-activated: triggers exactly ONE special power-up
+        overdriveCharge = 0; // Resets immediately to 0% to begin charging towards the next special
+        pendingOverdriveActivation = false;
 
         sfx.playOverdriveActivate();
         triggerScreenShake(20);
         screenFlash = 0.75;
         screenFlashColor = '#ffd700';
 
-        // Load 3 consecutive Frenzy super-weapons:
-        // 1. Black Hole Vortex
-        // 2. Supernova Core
-        // 3. Antimatter Nuke
-        currentOrb = {
-            type: 'special',
-            subType: 'blackhole',
-            label: '⚫ VORTEX'
-        };
-        nextQueue[0] = {
-            type: 'special',
-            subType: 'supernova_core',
-            label: '🌟 NOVA'
-        };
-        nextQueue[1] = {
-            type: 'special',
-            subType: 'antimatter_nuke',
-            label: '💥 NUKE'
-        };
+        // Select the next special in rotation (Vortex -> Supernova Core -> Antimatter Nuke -> repeat)
+        const special = FRENZY_SPECIALS[frenzySpecialIndex % FRENZY_SPECIALS.length];
+        frenzySpecialIndex++;
 
-        addFloatingText('🔥 SINGULARITY FRENZY! 🔥', canvas.width / (2 * dpr), boardOffsetY + cellH * 3, '#ffd700', 1.5);
+        // Load ONLY this 1 special into the active launcher; upcoming queue remains untouched!
+        currentOrb = { ...special };
+
+        addFloatingText(`🔥 OVERDRIVE: ${special.label}! 🔥`, canvas.width / (2 * dpr), boardOffsetY + cellH * 3, '#ffd700', 1.5);
         checkBountyProgress('frenzy', 1);
         checkAdventureObjective('activate_frenzy', 1);
         updateHUD();
@@ -2566,22 +2570,21 @@
         if (overdriveContainer && overdrivePercent && overdriveFill) {
             if (isFrenzyActive) {
                 overdriveContainer.classList.add('frenzy-active');
-                overdrivePercent.textContent = `${frenzyTurnsRemaining} FRENZY TURNS`;
+                overdrivePercent.textContent = `OVERDRIVE ACTIVE`;
                 overdrivePercent.style.color = '#ffd700';
-                const pct = Math.round((frenzyTurnsRemaining / 3) * 100);
-                overdriveFill.style.width = `${pct}%`;
+                overdriveFill.style.width = `100%`;
             } else {
                 overdriveContainer.classList.remove('frenzy-active');
                 overdrivePercent.textContent = `${overdriveCharge}%`;
-                overdrivePercent.style.color = isOverdriveReady ? 'var(--gold)' : 'var(--cyan)';
+                overdrivePercent.style.color = 'var(--cyan)';
                 overdriveFill.style.width = `${overdriveCharge}%`;
             }
 
             if (btnOverdrive) {
-                btnOverdrive.style.display = isOverdriveReady ? 'block' : 'none';
+                btnOverdrive.style.display = 'none';
             }
             if (btnTouchFrenzy) {
-                btnTouchFrenzy.style.display = isOverdriveReady ? 'block' : 'none';
+                btnTouchFrenzy.style.display = 'none';
             }
         }
 

@@ -21,13 +21,14 @@ When two adjacent blocks sum to **`0`**, they trigger a **Zero Point Detonation*
 When two touching tiles have the **same value and sign** (e.g. `+2 & +2 = +4`, or `+4 & +4 = +8`), they fuse together!
 * Synthesizing higher numbers is how you actively **craft Supernovas** to clear massive board space!
 
-### 3. Singularity Overdrive & Frenzy Meter (Black Hole Arsenal!)
+### 3. Singularity Overdrive (Super-Weapon Arsenal!)
 Skillful play—same-sign synthesis (+2%), Zero Point detonations (+2% to +18%), and Bounties—charges the **Singularity Overdrive Gauge** (0% to 100%).
-* **Triggering Frenzy**: When full, press **`[F]`** or tap the glowing **⚡ Unleash Frenzy!** button.
-* **Frenzy Super-Weapons (3 consecutive tactical turns)**:
-  1. **`[⚫ VORTEX]` Black Hole Orb**: Sucks in and annihilates **every single tile in the target column** (vaporizing numbers and Dark Matter cores alike) and deals 1 damage to neighboring Dark Matter columns!
+* **Auto-Activation**: When the gauge reaches 100%, Overdrive **auto-activates immediately**!
+* **1 Power-Up Per Fill**: Each full bar loads **one** tactical super-weapon into your launcher (cycling through the arsenal on each fill):
+  1. **`[⚫ VORTEX]` Black Hole Orb**: Sucks in and clears **every single tile in the target column** (vaporizing numbers and Dark Matter cores alike) and deals damage to neighboring Dark Matter columns!
   2. **`[🌟 NOVA]` Supernova Core**: Detonates an immediate Tier 4 Supernova Crater across a **3×3 blast area**!
-  3. **`[💥 NUKE]` Antimatter Nuke**: Unleashes a high-explosive **3×3 area blast**!
+  3. **`[💥 NUKE]` Antimatter Nuke**: Unleashes a high-yield **3×3 area blast**!
+* After deploying the super-weapon, Overdrive discharges and begins recharging from 0%.
 
 ### 4. Quantum Swap Tokens (Emergency Rescue & Setup)
 Spend a Quantum Swap Token to swap **any two adjacent tiles** on the board.
@@ -65,7 +66,7 @@ Every **5 drops**, dormant **Dark Matter** rises from the reactor bottom. Detona
 | **Drop Orb** | Click or `[Space]` / `[Enter]` / `[↓]` | Tap **Drop Orb** button |
 | **Swap Hold** | Press `[C]` or Click Hold Box | Tap **Hold [C]** button |
 | **Quantum Swap** | Press `[S]` or Click Swap Slot | Tap **Swap [S]** button |
-| **Unleash Frenzy** | Press `[F]` or Click **⚡ Frenzy!** | Tap **⚡ Frenzy!** button |
+| **Overdrive** | Auto-activates when bar reaches 100% | Auto-activates when bar reaches 100% |
 | **Fullscreen Mode** | Click Expand Icon (top right) | Tap Expand Icon (top right) |
 | **Restart** | Press `[R]` or Click Refresh Icon | Refresh Icon |
 
