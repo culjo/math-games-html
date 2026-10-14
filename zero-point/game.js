@@ -3134,7 +3134,8 @@
         }
         ctx.fillRect(boardOffsetX + col * cellW, boardOffsetY, cellW, cellH * ROWS);
 
-        // Dashed trajectory centerline (bright and crisp)
+        // Dashed trajectory centerline (hidden for now as requested)
+        /*
         ctx.save();
         ctx.setLineDash([5, 5]);
         const centerLineColor = currentOrb && currentOrb.subType === 'blackhole' ? 'rgba(255, 215, 0, 0.70)' :
@@ -3148,6 +3149,7 @@
         ctx.lineTo(centerX, boardOffsetY + cellH * ROWS);
         ctx.stroke();
         ctx.restore();
+        */
 
         // Ghost Tile & Mathematical Outcome Preview!
         if (!activeProjectile && currentOrb) {
