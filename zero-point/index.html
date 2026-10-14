@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ZERO POINT — Quantum Math Cascade</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -299,8 +299,6 @@
                     <div class="touch-action-buttons">
                         <button id="btn-touch-hold" class="action-btn">Hold [C]</button>
                         <button id="btn-touch-swap" class="action-btn btn-swap">⚡ Swap (1)</button>
-                        <button id="btn-touch-frenzy" class="action-btn" style="display: none; background: linear-gradient(135deg, var(--purple), var(--gold)); color: #000; font-weight: 900;">🔥 Frenzy!</button>
-                        <button id="btn-touch-drop" class="action-btn btn-primary">Drop Orb</button>
                     </div>
                 </div>
             </div>
@@ -568,13 +566,24 @@
                     <div class="setting-row">
                         <div class="setting-label">
                             <strong>Screen Shake</strong>
-                            <p>Haptic camera rumble on heavy detonations</p>
+                            <p>Camera rumble on heavy detonations</p>
                         </div>
                         <select id="setting-shake-select" class="setting-select">
                             <option value="high" selected>Full (Exciting)</option>
                             <option value="mild">Mild</option>
                             <option value="off">Off (Reduced Motion)</option>
                         </select>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-label">
+                            <strong>Haptic Feedback</strong>
+                            <p>Tactile vibration ticks on column moves and impacts</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="setting-vibration-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
                     </div>
                 </div>
 

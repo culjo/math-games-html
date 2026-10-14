@@ -30,10 +30,17 @@ body {
     color: var(--text-primary);
     font-family: var(--font-stack);
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow-x: hidden;
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
     background-image: 
         radial-gradient(circle at 50% 10%, rgba(0, 242, 254, 0.07) 0%, transparent 60%),
         radial-gradient(circle at 50% 90%, rgba(255, 78, 80, 0.06) 0%, transparent 60%);
@@ -42,6 +49,7 @@ body {
 #game-root {
     width: 100%;
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -586,16 +594,17 @@ canvas {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    padding: 12px 6px;
+    padding: 8px 12px;
     border-radius: 12px;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     cursor: pointer;
     transition: all 0.2s;
-    min-height: 44px;
+    min-height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 6px;
 }
 
 .action-btn.btn-primary {

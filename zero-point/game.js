@@ -132,6 +132,7 @@
     const btnSettingsSave = document.getElementById('btn-settings-save');
     const settingSfxToggle = document.getElementById('setting-sfx-toggle');
     const settingBgmToggle = document.getElementById('setting-bgm-toggle');
+    const settingVibrationToggle = document.getElementById('setting-vibration-toggle');
     const settingShakeSelect = document.getElementById('setting-shake-select');
     const btnResetData = document.getElementById('btn-reset-data');
 
@@ -287,6 +288,7 @@
             settings: {
                 sfx: true,
                 bgm: true,
+                vibration: true,
                 shake: 'high'
             }
         };
@@ -347,6 +349,7 @@
 
         if (settingSfxToggle && career.settings) settingSfxToggle.checked = !!career.settings.sfx;
         if (settingBgmToggle && career.settings) settingBgmToggle.checked = !!career.settings.bgm;
+        if (settingVibrationToggle && career.settings) settingVibrationToggle.checked = career.settings.vibration !== false;
         if (settingShakeSelect && career.settings) settingShakeSelect.value = career.settings.shake || 'high';
     }
 
@@ -958,6 +961,16 @@
             });
         }
 
+        if (settingVibrationToggle) {
+            settingVibrationToggle.addEventListener('change', (e) => {
+                career.settings.vibration = e.target.checked;
+                saveCareerData();
+                if (e.target.checked) {
+                    triggerHaptic('tick');
+                }
+            });
+        }
+
         if (settingShakeSelect) {
             settingShakeSelect.addEventListener('change', (e) => {
                 career.settings.shake = e.target.value;
@@ -973,7 +986,7 @@
                         unlockedLevel: 1,
                         levelStars: {},
                         levelHighScores: {},
-                        settings: { sfx: true, bgm: true, shake: 'high' }
+                        settings: { sfx: true, bgm: true, vibration: true, shake: 'high' }
                     };
                     saveCareerData();
                     updateCareerDisplays();
@@ -1253,12 +1266,14 @@
         };
 
         sfx.playDrop();
+        triggerHaptic('drop');
     }
 
     function swapHold() {
         if (isTutorial || !canHold || isProcessing || isGameOver) return;
         sfx.init();
         sfx.playMove();
+        triggerHaptic('swap');
 
         if (heldOrb === null) {
             heldOrb = currentOrb;
@@ -1579,6 +1594,7 @@
                     grid[rB][cB].scaleY = 1.45;
 
                     sfx.playMerge(fusedVal);
+                    triggerHaptic('merge');
                     shockwaves.push({
                         x: xB,
                         y: yB,
@@ -1754,6 +1770,13 @@
         const tier = getTier(magnitude);
 
         sfx.playAnnihilate(combo, tier);
+        if (tier >= 4) {
+            triggerHaptic('supernova');
+        } else if (tier === 3) {
+            triggerHaptic('laser');
+        } else {
+            triggerHaptic('zero');
+        }
 
         let bannerText = 'ZERO POINT!';
         let bannerColor = '#00f2fe';
@@ -2196,6 +2219,7 @@
         pendingOverdriveActivation = false;
 
         sfx.playOverdriveActivate();
+        triggerHaptic('overdrive');
         triggerScreenShake(20);
         screenFlash = 0.75;
         screenFlashColor = '#ffd700';
@@ -2351,6 +2375,7 @@
 
         if (isSwapModeActive) {
             sfx.playMove();
+            triggerHaptic('swap');
             if (swapBanner) {
                 swapBanner.style.display = 'block';
                 swapBanner.textContent = 'SWAP MODE: Select first tile on board';
@@ -2429,6 +2454,7 @@
 
             swapTokens = Math.max(0, swapTokens - 1);
             sfx.playQuantumSwap();
+            triggerHaptic('swap');
 
             // Visual effects at both tiles
             const x1 = boardOffsetX + (c1 + 0.5) * cellW;
@@ -2681,14 +2707,15 @@
             }
         });
 
-        // Touch Interaction
+        // Touch Interaction - Direct Drag-to-Aim & Release-to-Drop
         let lastTouchTime = 0;
-        let touchStartX = 0;
-        let touchStartY = 0;
+        let isTouchingCanvas = false;
+        let touchCanceled = false;
 
         canvas.addEventListener('click', (e) => {
             if (isProcessing || isGameOver || isPaused || currentScreen !== 'game') return;
-            if (Date.now() - lastTouchTime < 450) return; // Prevent ghost click on mobile touch
+            // Prevent synthetic duplicate click right after mobile touchend
+            if (Date.now() - lastTouchTime < 500) return;
 
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
@@ -2708,33 +2735,72 @@
 
         canvas.addEventListener('touchstart', (e) => {
             if (isProcessing || isGameOver || isPaused || currentScreen !== 'game') return;
+            if (e.touches.length > 1) return; // Ignore multitouch gestures
+            if (e.cancelable) e.preventDefault();
+
             lastTouchTime = Date.now();
+            isTouchingCanvas = true;
+            touchCanceled = false;
 
             const rect = canvas.getBoundingClientRect();
-            touchStartX = e.touches[0].clientX - rect.left;
-            touchStartY = e.touches[0].clientY - rect.top;
+            const touchX = e.touches[0].clientX - rect.left;
+            const touchY = e.touches[0].clientY - rect.top;
 
             if (isSwapModeActive) {
-                handleSwapClick(touchStartX, touchStartY);
+                handleSwapClick(touchX, touchY);
+                isTouchingCanvas = false;
                 return;
             }
 
-            const col = Math.floor(touchStartX / cellW);
+            const col = Math.floor(touchX / cellW);
             if (col >= 0 && col < COLS) {
-                aimCol = col;
+                if (col !== aimCol) {
+                    aimCol = col;
+                    sfx.playMove();
+                    triggerHaptic('tick');
+                }
             }
-        }, { passive: true });
+        }, { passive: false });
 
         canvas.addEventListener('touchmove', (e) => {
-            if (isProcessing || isGameOver || isPaused || currentScreen !== 'game' || isSwapModeActive) return;
+            if (!isTouchingCanvas || isProcessing || isGameOver || isPaused || currentScreen !== 'game' || isSwapModeActive) return;
+            if (e.cancelable) e.preventDefault(); // Prevents pull-to-refresh & screen dragging
+
             const rect = canvas.getBoundingClientRect();
             const touchX = e.touches[0].clientX - rect.left;
+            const touchY = e.touches[0].clientY - rect.top;
+
+            // If dragged upwards past the top header, safely cancel drop intent
+            if (touchY < -40) {
+                touchCanceled = true;
+                return;
+            } else {
+                touchCanceled = false;
+            }
+
             const col = Math.floor(touchX / cellW);
             if (col >= 0 && col < COLS && col !== aimCol) {
                 aimCol = col;
                 sfx.playMove();
+                triggerHaptic('tick');
             }
-        }, { passive: true });
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', (e) => {
+            if (!isTouchingCanvas) return;
+            isTouchingCanvas = false;
+            lastTouchTime = Date.now();
+
+            if (touchCanceled || isProcessing || isGameOver || isPaused || currentScreen !== 'game' || isSwapModeActive) return;
+
+            // Direct release-to-drop!
+            dropActiveOrb();
+        });
+
+        canvas.addEventListener('touchcancel', () => {
+            isTouchingCanvas = false;
+            touchCanceled = true;
+        });
 
         // Keyboard Controls
         window.addEventListener('keydown', (e) => {
@@ -3913,6 +3979,85 @@
     function triggerScreenShake(magnitude = 6) {
         const factor = (career && career.settings) ? (career.settings.shake === 'off' ? 0 : career.settings.shake === 'mild' ? 0.4 : 1.0) : 1.0;
         screenShake = Math.max(screenShake, magnitude * factor);
+    }
+
+    // Native & Web Haptics Controller (Unified Capacitor & Browser)
+    function triggerHaptic(type = 'light') {
+        if (!career || !career.settings || career.settings.vibration === false) return;
+
+        // Capacitor Native Plugin support (@capacitor/haptics)
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics) {
+            try {
+                const Haptics = window.Capacitor.Plugins.Haptics;
+                switch (type) {
+                    case 'tick':
+                        if (Haptics.selectionChanged) Haptics.selectionChanged();
+                        return;
+                    case 'drop':
+                        if (Haptics.impact) Haptics.impact({ style: 'MEDIUM' });
+                        return;
+                    case 'merge':
+                        if (Haptics.impact) Haptics.impact({ style: 'LIGHT' });
+                        return;
+                    case 'swap':
+                        if (Haptics.selectionChanged) Haptics.selectionChanged();
+                        return;
+                    case 'zero':
+                        if (Haptics.notification) Haptics.notification({ type: 'SUCCESS' });
+                        else if (Haptics.impact) Haptics.impact({ style: 'HEAVY' });
+                        return;
+                    case 'laser':
+                    case 'supernova':
+                        if (Haptics.impact) Haptics.impact({ style: 'HEAVY' });
+                        return;
+                    case 'overdrive':
+                        if (Haptics.notification) Haptics.notification({ type: 'WARNING' });
+                        return;
+                    default:
+                        if (Haptics.impact) Haptics.impact({ style: 'LIGHT' });
+                        return;
+                }
+            } catch (e) {
+                // Fallback to navigator.vibrate if Capacitor call fails
+            }
+        }
+
+        // Standard Web Vibration API
+        if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+            try {
+                switch (type) {
+                    case 'tick':
+                        navigator.vibrate(8);
+                        break;
+                    case 'drop':
+                        navigator.vibrate(18);
+                        break;
+                    case 'merge':
+                        navigator.vibrate(28);
+                        break;
+                    case 'swap':
+                        navigator.vibrate(12);
+                        break;
+                    case 'zero':
+                        navigator.vibrate([25, 30, 35]);
+                        break;
+                    case 'laser':
+                        navigator.vibrate([20, 30, 20, 30, 45]);
+                        break;
+                    case 'supernova':
+                        navigator.vibrate([40, 30, 50, 30, 70]);
+                        break;
+                    case 'overdrive':
+                        navigator.vibrate([30, 30, 50, 40, 60]);
+                        break;
+                    default:
+                        navigator.vibrate(15);
+                        break;
+                }
+            } catch (e) {
+                // Silently ignore if blocked by browser policy
+            }
+        }
     }
 
     function delay(ms) {
