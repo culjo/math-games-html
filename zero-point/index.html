@@ -82,6 +82,15 @@
                 </div>
             </div>
 
+            <!-- Interactive Tutorial Banner -->
+            <button id="btn-home-tutorial" class="btn-tutorial-banner">
+                <span class="tutorial-banner-icon">🎓</span>
+                <div class="tutorial-banner-text">
+                    <span class="tutorial-banner-title">Interactive Training Level</span>
+                    <span class="tutorial-banner-sub">Learn Zero Blasts & Merging step-by-step (2 mins) ➜</span>
+                </div>
+            </button>
+
             <!-- Secondary Actions -->
             <div class="home-bottom-actions">
                 <button id="btn-open-codex" class="btn-nav">
@@ -197,6 +206,16 @@
                     </button>
                 </div>
 
+                <!-- Tutorial Step Card (Shown in Tutorial Mode) -->
+                <div class="tutorial-card" id="tutorial-card" style="display: none;">
+                    <div class="tutorial-header">
+                        <span class="tutorial-badge" id="tutorial-step-badge">STEP 1 / 4</span>
+                        <span class="tutorial-tag">🎓 ACADEMY TRAINING</span>
+                    </div>
+                    <div class="tutorial-title" id="tutorial-title">Opposites Cancel to Zero</div>
+                    <div class="tutorial-desc" id="tutorial-desc">Drop your <strong>-3</strong> orb onto the <strong>+3</strong> tile in Column 3 to trigger a Zero Blast!</div>
+                </div>
+
                 <!-- Adventure Mode Objective Bar (Shown in Adventure Mode) -->
                 <div class="adventure-objective-card" id="adventure-objective-card" style="display: none;">
                     <div class="adv-obj-header">
@@ -307,6 +326,12 @@
                 <button class="codex-tab" data-tab="synthesis">2. Merge & Double</button>
                 <button class="codex-tab" data-tab="specials">3. Special Orbs</button>
                 <button class="codex-tab" data-tab="tactics">4. Tactics</button>
+            </div>
+
+            <!-- Hands-on Training Link -->
+            <div class="codex-training-cta">
+                <span class="cta-text">Prefer learning by doing?</span>
+                <button id="btn-codex-tutorial" class="btn-tutorial-pill">🎓 Play Hands-on Tutorial ➜</button>
             </div>
 
             <!-- Tab 1: Zero Blast (Cancel to Zero) -->

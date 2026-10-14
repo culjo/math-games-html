@@ -1809,3 +1809,157 @@ input:checked + .toggle-slider:before {
     border-color: var(--cyan) !important;
     box-shadow: 0 0 12px var(--cyan-glow) !important;
 }
+
+/* ========================================== */
+/* TUTORIAL & TRAINING STYLES                 */
+/* ========================================== */
+.btn-tutorial-banner {
+    width: 100%;
+    max-width: 480px;
+    background: linear-gradient(135deg, rgba(249, 212, 35, 0.12), rgba(0, 242, 254, 0.1));
+    border: 1.5px solid rgba(249, 212, 35, 0.45);
+    border-radius: 16px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    text-align: left;
+    margin: 4px auto;
+}
+
+.btn-tutorial-banner:hover {
+    transform: translateY(-2px);
+    border-color: var(--gold);
+    box-shadow: 0 6px 24px rgba(249, 212, 35, 0.3);
+    background: linear-gradient(135deg, rgba(249, 212, 35, 0.2), rgba(0, 242, 254, 0.15));
+}
+
+.tutorial-banner-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 10px rgba(249, 212, 35, 0.7));
+}
+
+.tutorial-banner-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.tutorial-banner-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+}
+
+.tutorial-banner-sub {
+    font-size: 0.76rem;
+    color: var(--text-main);
+    opacity: 0.9;
+}
+
+/* In-Game Tutorial Card */
+.tutorial-card {
+    background: linear-gradient(135deg, rgba(13, 27, 42, 0.95), rgba(15, 23, 42, 0.95));
+    border: 1.5px solid var(--gold);
+    border-radius: 14px;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: 0 4px 20px rgba(249, 212, 35, 0.2);
+    animation: fadeInSlide 0.3s ease;
+}
+
+.tutorial-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tutorial-badge {
+    font-size: 0.7rem;
+    font-weight: 900;
+    background: rgba(0, 242, 254, 0.2);
+    color: var(--cyan);
+    border: 1px solid rgba(0, 242, 254, 0.4);
+    padding: 2px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.8px;
+}
+
+.tutorial-tag {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+}
+
+.tutorial-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.tutorial-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.tutorial-desc strong {
+    color: var(--cyan);
+}
+
+/* Codex Hands-on Training Link */
+.codex-training-cta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(249, 212, 35, 0.08);
+    border: 1px dashed rgba(249, 212, 35, 0.35);
+    border-radius: 12px;
+    padding: 8px 14px;
+    margin-bottom: 12px;
+}
+
+.codex-training-cta .cta-text {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.btn-tutorial-pill {
+    background: linear-gradient(135deg, var(--gold), #ffaa00);
+    color: #000;
+    font-weight: 800;
+    font-size: 0.78rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 10px rgba(249, 212, 35, 0.3);
+}
+
+.btn-tutorial-pill:hover {
+    transform: scale(1.04);
+    box-shadow: 0 0 16px rgba(249, 212, 35, 0.6);
+}
+
+/* Campaign Map Tutorial Card */
+.level-card.training-card {
+    border-color: rgba(249, 212, 35, 0.4);
+    background: linear-gradient(135deg, rgba(249, 212, 35, 0.08), rgba(0, 0, 0, 0.3));
+}
+
+.level-card.training-card .level-num-badge {
+    background: rgba(249, 212, 35, 0.2);
+    color: var(--gold);
+    border-color: rgba(249, 212, 35, 0.5);
+}
