@@ -251,7 +251,7 @@
                     </div>
                 </div>
 
-                <!-- Tactical HUD (Hold slot & Swap Tokens & Queue preview & Rise countdown) -->
+                <!-- Tactical HUD (Hold slot & Swap Tokens & Queue preview) -->
                 <div class="tactical-hud">
                     <div class="hold-section">
                         <span class="tactical-label">Hold [C]</span>
@@ -267,17 +267,21 @@
                         </div>
                     </div>
 
-                    <div class="turn-counter">
-                        <span class="tactical-label" id="turn-counter-label">Rising In</span>
-                        <span id="rise-counter" class="counter-ring">5 Drops</span>
-                    </div>
-
                     <div class="queue-section">
                         <span class="tactical-label">Next</span>
                         <div class="queue-preview">
                             <div id="next-slot-1" class="slot next-slot"></div>
                             <div id="next-slot-2" class="slot next-slot"></div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Containment & Rise Countdown (Dedicated Line) -->
+                <div class="rise-status-bar" id="rise-status-bar">
+                    <div class="rise-status-content">
+                        <span class="rise-status-icon">⚠️</span>
+                        <span class="rise-status-label" id="turn-counter-label">Rising In</span>
+                        <span id="rise-counter" class="counter-ring">5 Drops</span>
                     </div>
                 </div>
 

@@ -71,6 +71,7 @@
     const comboVal = document.getElementById('combo-val');
     const turnCounterLabel = document.getElementById('turn-counter-label');
     const riseCounter = document.getElementById('rise-counter');
+    const riseStatusBar = document.getElementById('rise-status-bar');
     const holdSlot = document.getElementById('hold-slot');
     const holdText = document.getElementById('hold-text');
     const nextSlot1 = document.getElementById('next-slot-1');
@@ -2560,10 +2561,24 @@
             const dropsRemaining = Math.max(0, maxDrops - dropsUsed);
             riseCounter.textContent = `${dropsRemaining} Drop${dropsRemaining === 1 ? '' : 's'}`;
             if (turnCounterLabel) turnCounterLabel.textContent = 'Drops Left';
+            if (riseStatusBar) {
+                if (dropsRemaining <= 3) {
+                    riseStatusBar.classList.add('danger-pulse');
+                } else {
+                    riseStatusBar.classList.remove('danger-pulse');
+                }
+            }
             updateAdventureObjectiveUI();
         } else {
             riseCounter.textContent = `${movesUntilRise} Drop${movesUntilRise === 1 ? '' : 's'}`;
             if (turnCounterLabel) turnCounterLabel.textContent = 'Rising In';
+            if (riseStatusBar) {
+                if (movesUntilRise <= 1) {
+                    riseStatusBar.classList.add('danger-pulse');
+                } else {
+                    riseStatusBar.classList.remove('danger-pulse');
+                }
+            }
         }
 
         // Update Overdrive Gauge

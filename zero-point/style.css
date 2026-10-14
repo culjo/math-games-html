@@ -259,12 +259,12 @@ header {
     100% { transform: scale(1.02); filter: brightness(1.2); }
 }
 
-/* Top Action HUD: Hold & Next Queue */
+/* Top Action HUD: Hold, Swap & Next Queue */
 .tactical-hud {
     width: 100%;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: space-around;
+    align-items: flex-start;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 14px;
@@ -272,14 +272,15 @@ header {
     backdrop-filter: blur(8px);
 }
 
-.hold-section, .queue-section {
+.hold-section, .swap-section, .queue-section {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 5px;
 }
 
 .tactical-label {
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     color: var(--text-muted);
     font-weight: 800;
     letter-spacing: 0.8px;
@@ -470,11 +471,37 @@ header {
     display: inline-block;
 }
 
-.turn-counter {
+/* Dedicated Rise Countdown Line */
+.rise-status-bar {
+    width: 100%;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    gap: 2px;
+    background: rgba(18, 23, 37, 0.7);
+    border: 1px solid rgba(255, 78, 80, 0.28);
+    border-radius: 10px;
+    padding: 6px 14px;
+    backdrop-filter: blur(8px);
+    transition: all 0.25s ease;
+}
+
+.rise-status-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rise-status-icon {
+    font-size: 0.85rem;
+    line-height: 1;
+}
+
+.rise-status-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
 }
 
 .counter-ring {
@@ -482,6 +509,21 @@ header {
     font-size: 0.98rem;
     font-weight: 900;
     color: var(--orange);
+    letter-spacing: 0.5px;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 10px rgba(255, 78, 80, 0.35);
+}
+
+.rise-status-bar.danger-pulse {
+    border-color: var(--danger);
+    background: rgba(255, 42, 95, 0.15);
+    box-shadow: 0 0 14px var(--danger-glow);
+    animation: riseDangerPulse 0.8s infinite alternate;
+}
+
+@keyframes riseDangerPulse {
+    0% { transform: scale(1); box-shadow: 0 0 8px rgba(255, 42, 95, 0.3); }
+    100% { transform: scale(1.015); box-shadow: 0 0 16px rgba(255, 42, 95, 0.6); }
 }
 
 /* Canvas Container */
@@ -632,12 +674,12 @@ canvas {
     }
 
     .tactical-hud {
-        gap: 6px;
-        padding: 5px 6px;
+        gap: 8px;
+        padding: 6px 10px;
     }
 
     .tactical-label {
-        font-size: 0.72rem;
+        font-size: 0.68rem;
     }
 
     .slot {
@@ -651,6 +693,10 @@ canvas {
 
     .swap-token-text, .swap-slot {
         font-size: 1.05rem;
+    }
+
+    .rise-status-bar {
+        padding: 4px 10px;
     }
 
     .counter-ring {
