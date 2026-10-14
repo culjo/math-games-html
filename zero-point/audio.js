@@ -436,6 +436,97 @@ class SoundFX {
             osc.stop(now + 0.23);
         } catch (e) {}
     }
+
+    playVictory() {
+        if (this.muted || !this.ctx) return;
+        this.resume();
+        try {
+            const now = this.ctx.currentTime;
+            const arpeggio = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+            arpeggio.forEach((freq, idx) => {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                const noteTime = now + idx * 0.08;
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, noteTime);
+
+                gain.gain.setValueAtTime(0.2, noteTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.4);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(noteTime);
+                osc.stop(noteTime + 0.4);
+            });
+        } catch (e) {}
+    }
+
+    startBGM() {
+        if (this.muted || !this.ctx || this.bgmNodes) return;
+        this.resume();
+        try {
+            const now = this.ctx.currentTime;
+            const masterBgmGain = this.ctx.createGain();
+            masterBgmGain.gain.setValueAtTime(0.001, now);
+            masterBgmGain.gain.exponentialRampToValueAtTime(0.045, now + 2); // Soft 2s fade in
+
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(320, now);
+
+            // Ambient chord frequencies: C2 (65.41), G2 (98.00), C3 (130.81), Eb3 (155.56)
+            const freqs = [65.41, 98.00, 130.81, 155.56];
+            const oscs = [];
+
+            freqs.forEach((f, i) => {
+                const osc = this.ctx.createOscillator();
+                osc.type = i % 2 === 0 ? 'sine' : 'triangle';
+                osc.frequency.setValueAtTime(f, now);
+                // Subtle detune for rich analog drone texture
+                osc.detune.setValueAtTime((i - 1.5) * 4, now);
+                osc.connect(filter);
+                osc.start(now);
+                oscs.push(osc);
+            });
+
+            filter.connect(masterBgmGain);
+            masterBgmGain.connect(this.ctx.destination);
+
+            this.bgmNodes = {
+                gain: masterBgmGain,
+                filter: filter,
+                oscs: oscs
+            };
+        } catch (e) {
+            console.warn("Could not start BGM", e);
+        }
+    }
+
+    stopBGM() {
+        if (!this.bgmNodes || !this.ctx) return;
+        try {
+            const now = this.ctx.currentTime;
+            const nodes = this.bgmNodes;
+            this.bgmNodes = null;
+            nodes.gain.gain.setValueAtTime(nodes.gain.gain.value, now);
+            nodes.gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+            setTimeout(() => {
+                try {
+                    nodes.oscs.forEach(o => o.stop());
+                } catch (e) {}
+            }, 850);
+        } catch (e) {}
+    }
+
+    toggleBGM(enable) {
+        if (enable) {
+            this.startBGM();
+        } else {
+            this.stopBGM();
+        }
+    }
 }
 
 window.soundFX = new SoundFX();

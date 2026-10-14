@@ -17,39 +17,65 @@
     const ctx = canvas.getContext('2d');
     const container = document.getElementById('canvas-container');
 
-    // UI DOM Elements
+    // Screens & Views
+    const screenHome = document.getElementById('screen-home');
+    const screenAdventureMap = document.getElementById('screen-adventure-map');
+    const screenGame = document.getElementById('screen-game');
+    const screenCodex = document.getElementById('screen-codex');
+
+    // Modals
+    const modalPause = document.getElementById('modal-pause');
+    const modalVictory = document.getElementById('modal-victory');
+    const modalSettings = document.getElementById('modal-settings');
+    const modalGameOver = document.getElementById('modal-gameover');
+
+    // Home Screen DOM Elements
+    const btnHomeSound = document.getElementById('btn-home-sound');
+    const btnHomeSettings = document.getElementById('btn-home-settings');
+    const homeBestPill = document.getElementById('home-best-pill');
+    const homeStarsPill = document.getElementById('home-stars-pill');
+    const cardPlayClassic = document.getElementById('card-play-classic');
+    const cardPlayAdventure = document.getElementById('card-play-adventure');
+    const homeCardHighscore = document.getElementById('home-card-highscore');
+    const homeCardStars = document.getElementById('home-card-stars');
+    const btnOpenCodex = document.getElementById('btn-open-codex');
+    const btnOpenSettings = document.getElementById('btn-open-settings');
+
+    // Adventure Map DOM Elements
+    const btnAdvToHome = document.getElementById('btn-adv-to-home');
+    const advHeaderStars = document.getElementById('adv-header-stars');
+    const adventureLevelsGrid = document.getElementById('adventure-levels-grid');
+
+    // Game Arena Header & Stats
+    const gameModeDisplay = document.getElementById('game-mode-display');
+    const gameModeSub = document.getElementById('game-mode-sub');
+    const btnPause = document.getElementById('btn-pause');
+    const btnSound = document.getElementById('btn-sound');
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    const iconExpand = document.getElementById('icon-expand');
+    const iconCompress = document.getElementById('icon-compress');
+    const btnRestart = document.getElementById('btn-restart');
+    const appEl = document.getElementById('app');
+
     const scoreVal = document.getElementById('score-val');
     const bestVal = document.getElementById('best-val');
+    const bestLabel = document.getElementById('best-label');
     const comboVal = document.getElementById('combo-val');
+    const turnCounterLabel = document.getElementById('turn-counter-label');
     const riseCounter = document.getElementById('rise-counter');
     const holdSlot = document.getElementById('hold-slot');
     const holdText = document.getElementById('hold-text');
     const nextSlot1 = document.getElementById('next-slot-1');
     const nextSlot2 = document.getElementById('next-slot-2');
-    const modalHelp = document.getElementById('modal-help');
-    const modalGameOver = document.getElementById('modal-gameover');
-    const btnSound = document.getElementById('btn-sound');
-    const iconSoundOn = document.getElementById('icon-sound-on');
-    const iconSoundOff = document.getElementById('icon-sound-off');
-    const btnHelp = document.getElementById('btn-help');
-    const btnCloseHelp = document.getElementById('btn-close-help');
-    const btnStart = document.getElementById('btn-start');
-    const btnRestart = document.getElementById('btn-restart');
-    const btnPlayAgain = document.getElementById('btn-play-again');
-    const btnTouchHold = document.getElementById('btn-touch-hold');
-    const btnTouchDrop = document.getElementById('btn-touch-drop');
-    const btnTouchFrenzy = document.getElementById('btn-touch-frenzy');
-    const btnTouchSwap = document.getElementById('btn-touch-swap');
 
-    const btnFullscreen = document.getElementById('btn-fullscreen');
-    const iconExpand = document.getElementById('icon-expand');
-    const iconCompress = document.getElementById('icon-compress');
-    const appEl = document.getElementById('app');
+    // Adventure Objective HUD
+    const adventureObjectiveCard = document.getElementById('adventure-objective-card');
+    const advObjStars = document.getElementById('adv-obj-stars');
+    const advObjDesc = document.getElementById('adv-obj-desc');
+    const advObjProgress = document.getElementById('adv-obj-progress');
+    const advObjFill = document.getElementById('adv-obj-fill');
 
-    const btnSwapToken = document.getElementById('btn-swap-token');
-    const swapTokenCount = document.getElementById('swap-token-count');
-    const swapBanner = document.getElementById('swap-banner');
-
+    // Tactical Bounty Card (Classic)
     const bountyCard = document.getElementById('bounty-card');
     const bountyName = document.getElementById('bounty-name');
     const bountyReward = document.getElementById('bounty-reward');
@@ -57,15 +83,261 @@
     const bountyProgressText = document.getElementById('bounty-progress-text');
     const bountyProgressFill = document.getElementById('bounty-progress-fill');
 
+    // Overdrive & Swaps
     const overdriveContainer = document.getElementById('overdrive-container');
     const overdrivePercent = document.getElementById('overdrive-percent');
     const overdriveFill = document.getElementById('overdrive-fill');
     const btnOverdrive = document.getElementById('btn-overdrive');
+    const btnSwapToken = document.getElementById('btn-swap-token');
+    const swapTokenCount = document.getElementById('swap-token-count');
+    const swapBanner = document.getElementById('swap-banner');
 
-    // Game State
+    // Touch Controls
+    const btnTouchHold = document.getElementById('btn-touch-hold');
+    const btnTouchDrop = document.getElementById('btn-touch-drop');
+    const btnTouchFrenzy = document.getElementById('btn-touch-frenzy');
+    const btnTouchSwap = document.getElementById('btn-touch-swap');
+
+    // Pause Modal
+    const pauseModeName = document.getElementById('pause-mode-name');
+    const pauseModeDetail = document.getElementById('pause-mode-detail');
+    const btnPauseResume = document.getElementById('btn-pause-resume');
+    const btnPauseRestart = document.getElementById('btn-pause-restart');
+    const btnPauseCodex = document.getElementById('btn-pause-codex');
+    const btnPauseSettings = document.getElementById('btn-pause-settings');
+    const btnPauseQuit = document.getElementById('btn-pause-quit');
+
+    // Victory Modal
+    const victoryTitle = document.getElementById('victory-title');
+    const victoryStarsContainer = document.getElementById('victory-stars-container');
+    const vicScore = document.getElementById('vic-score');
+    const vicDrops = document.getElementById('vic-drops');
+    const vicBonus = document.getElementById('vic-bonus');
+    const vicCascade = document.getElementById('vic-cascade');
+    const btnVicNext = document.getElementById('btn-vic-next');
+    const btnVicReplay = document.getElementById('btn-vic-replay');
+    const btnVicMap = document.getElementById('btn-vic-map');
+
+    // Settings Modal
+    const btnCloseSettings = document.getElementById('btn-close-settings');
+    const btnSettingsSave = document.getElementById('btn-settings-save');
+    const settingSfxToggle = document.getElementById('setting-sfx-toggle');
+    const settingBgmToggle = document.getElementById('setting-bgm-toggle');
+    const settingShakeSelect = document.getElementById('setting-shake-select');
+    const btnResetData = document.getElementById('btn-reset-data');
+
+    // Codex Elements
+    const btnCodexToHome = document.getElementById('btn-codex-to-home');
+    const btnCodexClose = document.getElementById('btn-codex-close');
+
+    // Game Over Actions
+    const btnPlayAgain = document.getElementById('btn-play-again');
+    const btnGoMenu = document.getElementById('btn-go-menu');
+
+    // Sector 1: Subatomic Genesis Adventure Levels
+    const ADVENTURE_LEVELS = [
+        {
+            id: 1,
+            title: "Subatomic Spark",
+            sector: "Sector 01-1",
+            desc: "Trigger 3 Zero Point Annihilations",
+            maxDrops: 15,
+            targetDropsForStar: 10,
+            targetScoreForStar: 2000,
+            objective: {
+                type: 'annihilations',
+                target: 3,
+                label: "Zero Point Annihilations"
+            },
+            setupBoard: (g) => {
+                const pool = [1, -1, 2, -2, 1, -1];
+                for (let c = 0; c < COLS; c++) {
+                    g[ROWS - 1][c] = createTile(pool[c % pool.length]);
+                    g[ROWS - 2][c] = createTile(c % 2 === 0 ? 2 : -2);
+                }
+            }
+        },
+        {
+            id: 2,
+            title: "Isotope Fusion",
+            sector: "Sector 01-2",
+            desc: "Synthesize a +4 or higher matter orb",
+            maxDrops: 14,
+            targetDropsForStar: 9,
+            targetScoreForStar: 2800,
+            objective: {
+                type: 'synthesis_tier',
+                target: 4,
+                label: "+4 Matter Orb Synthesized"
+            },
+            setupBoard: (g) => {
+                for (let c = 0; c < COLS; c++) {
+                    g[ROWS - 1][c] = createTile(c % 2 === 0 ? 2 : 1);
+                    g[ROWS - 2][c] = createTile(c % 2 === 0 ? 2 : 1);
+                }
+            }
+        },
+        {
+            id: 3,
+            title: "Dark Matter Breach",
+            sector: "Sector 01-3",
+            desc: "Shatter all 4 Dark Matter obstacles",
+            maxDrops: 18,
+            targetDropsForStar: 12,
+            targetScoreForStar: 3500,
+            objective: {
+                type: 'clear_dark_matter',
+                target: 4,
+                label: "Dark Matter Shattered"
+            },
+            setupBoard: (g) => {
+                for (let c = 0; c < COLS; c++) {
+                    g[ROWS - 1][c] = createTile(c % 2 === 0 ? 2 : -2);
+                    if (c >= 1 && c <= 4) {
+                        g[ROWS - 2][c] = createTile(0, 'dark_matter');
+                    } else {
+                        g[ROWS - 2][c] = createTile(c % 2 === 0 ? -1 : 1);
+                    }
+                }
+            }
+        },
+        {
+            id: 4,
+            title: "Cross Laser Ignition",
+            sector: "Sector 01-4",
+            desc: "Detonate a Cross Laser (±4 or higher)",
+            maxDrops: 16,
+            targetDropsForStar: 11,
+            targetScoreForStar: 4200,
+            objective: {
+                type: 'trigger_laser',
+                target: 1,
+                label: "Cross Laser Detonated"
+            },
+            setupBoard: (g) => {
+                g[ROWS - 1][0] = createTile(4);
+                g[ROWS - 1][1] = createTile(-2);
+                g[ROWS - 1][2] = createTile(-2);
+                g[ROWS - 1][3] = createTile(3);
+                g[ROWS - 1][4] = createTile(-3);
+                g[ROWS - 1][5] = createTile(2);
+
+                g[ROWS - 2][0] = createTile(2);
+                g[ROWS - 2][1] = createTile(2);
+                g[ROWS - 2][4] = createTile(-2);
+            }
+        },
+        {
+            id: 5,
+            title: "Singularity Overdrive",
+            sector: "Sector 01-Boss",
+            desc: "Charge Overdrive to 100% & unleash Singularity Frenzy",
+            maxDrops: 20,
+            targetDropsForStar: 14,
+            targetScoreForStar: 6000,
+            objective: {
+                type: 'activate_frenzy',
+                target: 1,
+                label: "Unleash Singularity Frenzy"
+            },
+            setupBoard: (g) => {
+                for (let c = 0; c < COLS; c++) {
+                    g[ROWS - 1][c] = createTile(c % 2 === 0 ? 4 : -4);
+                    if (c === 0 || c === 5) {
+                        g[ROWS - 2][c] = createTile(0, 'dark_matter');
+                    } else {
+                        g[ROWS - 2][c] = createTile(c % 2 === 0 ? -2 : 2);
+                    }
+                }
+            }
+        }
+    ];
+
+    // Career Persistence Functions
+    function loadCareerData() {
+        const defaultCareer = {
+            highScore: 0,
+            unlockedLevel: 1,
+            levelStars: {},
+            levelHighScores: {},
+            settings: {
+                sfx: true,
+                bgm: true,
+                shake: 'high'
+            }
+        };
+
+        try {
+            const raw = localStorage.getItem('zeropoint_career');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                return {
+                    ...defaultCareer,
+                    ...parsed,
+                    settings: { ...defaultCareer.settings, ...(parsed.settings || {}) }
+                };
+            }
+            // Backward compatibility with legacy key
+            const legacyBest = parseInt(localStorage.getItem('zeropoint_highscore') || '0', 10);
+            if (legacyBest > 0) {
+                defaultCareer.highScore = legacyBest;
+            }
+        } catch (e) {
+            console.warn('Could not parse career data from storage', e);
+        }
+        return defaultCareer;
+    }
+
+    function saveCareerData() {
+        try {
+            localStorage.setItem('zeropoint_career', JSON.stringify(career));
+            localStorage.setItem('zeropoint_highscore', (career.highScore || 0).toString());
+        } catch (e) {
+            console.warn('Could not save career data', e);
+        }
+        updateCareerDisplays();
+    }
+
+    function getTotalStars() {
+        if (!career || !career.levelStars) return 0;
+        let total = 0;
+        for (let i = 1; i <= ADVENTURE_LEVELS.length; i++) {
+            total += (career.levelStars[i] || 0);
+        }
+        return total;
+    }
+
+    function updateCareerDisplays() {
+        const totalStars = getTotalStars();
+        const maxStars = ADVENTURE_LEVELS.length * 3;
+        const best = career.highScore || 0;
+
+        if (homeBestPill) homeBestPill.textContent = `🏆 Best: ${best.toLocaleString()} pts`;
+        if (homeStarsPill) homeStarsPill.textContent = `⭐ ${totalStars}/${maxStars} Stars`;
+        if (homeCardHighscore) homeCardHighscore.textContent = `Best: ${best.toLocaleString()}`;
+        if (homeCardStars) homeCardStars.textContent = `⭐ ${totalStars} / ${maxStars}`;
+        if (advHeaderStars) advHeaderStars.textContent = `⭐ ${totalStars} / ${maxStars}`;
+
+        if (settingSfxToggle && career.settings) settingSfxToggle.checked = !!career.settings.sfx;
+        if (settingBgmToggle && career.settings) settingBgmToggle.checked = !!career.settings.bgm;
+        if (settingShakeSelect && career.settings) settingShakeSelect.value = career.settings.shake || 'high';
+    }
+
+    // Career & Navigation State
+    let career = loadCareerData();
+    let currentScreen = 'home'; // 'home' | 'adventure-map' | 'game' | 'codex'
+    let codexPreviousScreen = 'home';
+    let isPaused = false;
+    let gameMode = 'classic'; // 'classic' | 'adventure'
+    let activeAdventureLevel = null;
+    let adventureProgress = 0;
+    let adventureObjectiveMet = false;
+    let dropsUsed = 0;
+    let maxDrops = 15;
+
+    // Game Arena State
     let grid = []; // 2D array [row][col]
     let score = 0;
-    let highScore = parseInt(localStorage.getItem('zeropoint_highscore') || '0', 10);
     let combo = 1;
     let maxCombo = 1;
     let totalZeroPoints = 0;
@@ -121,6 +393,325 @@
     const sfx = window.soundFX;
 
     // Initialization
+    // Screen Navigation & Flows
+    function showScreen(screenId) {
+        currentScreen = screenId;
+        const screens = [screenHome, screenAdventureMap, screenGame, screenCodex];
+        screens.forEach(s => {
+            if (s) s.classList.remove('active');
+        });
+
+        if (screenId === 'home') {
+            if (screenHome) screenHome.classList.add('active');
+            updateCareerDisplays();
+        } else if (screenId === 'adventure-map') {
+            if (screenAdventureMap) screenAdventureMap.classList.add('active');
+            renderAdventureMap();
+        } else if (screenId === 'game') {
+            if (screenGame) screenGame.classList.add('active');
+            setTimeout(resizeCanvas, 60);
+        } else if (screenId === 'codex') {
+            if (screenCodex) screenCodex.classList.add('active');
+        }
+
+        syncAudioUI();
+    }
+
+    function renderAdventureMap() {
+        if (!adventureLevelsGrid) return;
+        adventureLevelsGrid.innerHTML = '';
+
+        ADVENTURE_LEVELS.forEach(lvl => {
+            const isUnlocked = lvl.id <= career.unlockedLevel;
+            const stars = career.levelStars[lvl.id] || 0;
+            const starsDisplay = [1, 2, 3].map(i => i <= stars ? '⭐' : '☆').join('');
+
+            const card = document.createElement('div');
+            card.className = `level-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+            card.innerHTML = `
+                <div class="level-header">
+                    <span class="level-num-badge">${lvl.sector}</span>
+                    <span class="level-stars-display">${starsDisplay}</span>
+                </div>
+                <div class="level-title">${lvl.title}</div>
+                <div class="level-desc">${lvl.desc}</div>
+                <div class="level-meta-row">
+                    <span class="level-drop-budget">🎯 Limit: ${lvl.maxDrops} Drops</span>
+                    <button class="btn-level-play" ${!isUnlocked ? 'disabled' : ''}>
+                        ${isUnlocked ? (stars > 0 ? 'Replay ➜' : 'Launch ➜') : '🔒 Locked'}
+                    </button>
+                </div>
+            `;
+
+            if (isUnlocked) {
+                card.addEventListener('click', () => {
+                    startAdventureLevel(lvl.id);
+                });
+            }
+
+            adventureLevelsGrid.appendChild(card);
+        });
+
+        updateCareerDisplays();
+    }
+
+    function startClassicMode() {
+        gameMode = 'classic';
+        activeAdventureLevel = null;
+        isGameOver = false;
+        isPaused = false;
+        if (modalPause) modalPause.classList.remove('visible');
+        if (modalVictory) modalVictory.classList.remove('visible');
+        if (modalGameOver) modalGameOver.classList.remove('visible');
+
+        if (gameModeDisplay) gameModeDisplay.textContent = 'ZERO POINT';
+        if (gameModeSub) gameModeSub.textContent = 'Quantum Math Cascade';
+        if (bountyCard) bountyCard.style.display = 'block';
+        if (adventureObjectiveCard) adventureObjectiveCard.style.display = 'none';
+        if (bestLabel) bestLabel.textContent = 'Best';
+        if (bestVal) bestVal.textContent = (career.highScore || 0).toLocaleString();
+        if (turnCounterLabel) turnCounterLabel.textContent = 'Rising In';
+
+        showScreen('game');
+        startNewGame();
+    }
+
+    function startAdventureLevel(levelId) {
+        const lvl = ADVENTURE_LEVELS.find(l => l.id === levelId) || ADVENTURE_LEVELS[0];
+        gameMode = 'adventure';
+        activeAdventureLevel = lvl;
+        adventureProgress = 0;
+        adventureObjectiveMet = false;
+        dropsUsed = 0;
+        maxDrops = lvl.maxDrops;
+        isGameOver = false;
+        isPaused = false;
+        if (modalPause) modalPause.classList.remove('visible');
+        if (modalVictory) modalVictory.classList.remove('visible');
+        if (modalGameOver) modalGameOver.classList.remove('visible');
+
+        if (gameModeDisplay) gameModeDisplay.textContent = lvl.sector;
+        if (gameModeSub) gameModeSub.textContent = lvl.title;
+        if (bountyCard) bountyCard.style.display = 'none';
+        if (adventureObjectiveCard) adventureObjectiveCard.style.display = 'block';
+        if (advObjDesc) advObjDesc.textContent = lvl.desc;
+        if (bestLabel) bestLabel.textContent = 'Sector Best';
+        const lvlBest = career.levelHighScores[lvl.id] || 0;
+        if (bestVal) bestVal.textContent = lvlBest.toLocaleString();
+        if (turnCounterLabel) turnCounterLabel.textContent = 'Drops Left';
+
+        showScreen('game');
+        startNewGame();
+
+        if (lvl.setupBoard) {
+            grid = Array(ROWS).fill(null).map(() => Array(COLS).fill(null));
+            lvl.setupBoard(grid);
+        }
+        updateAdventureObjectiveUI();
+    }
+
+    function restartCurrentGame() {
+        if (gameMode === 'adventure' && activeAdventureLevel) {
+            startAdventureLevel(activeAdventureLevel.id);
+        } else {
+            startClassicMode();
+        }
+    }
+
+    function togglePause(forceState) {
+        if (currentScreen !== 'game' || isGameOver) return;
+        if (modalVictory && modalVictory.classList.contains('visible')) return;
+
+        isPaused = (forceState !== undefined) ? forceState : !isPaused;
+
+        if (isPaused) {
+            if (pauseModeName) {
+                pauseModeName.textContent = gameMode === 'classic' ? 'Classic Survival' : `${activeAdventureLevel.sector}: ${activeAdventureLevel.title}`;
+            }
+            if (pauseModeDetail) {
+                pauseModeDetail.textContent = `Score: ${score.toLocaleString()} • Cascade: ${maxCombo}x • Zeroes: ${totalZeroPoints}`;
+            }
+            if (modalPause) modalPause.classList.add('visible');
+        } else {
+            if (modalPause) modalPause.classList.remove('visible');
+            lastTime = performance.now();
+        }
+    }
+
+    function syncAudioUI() {
+        const isMuted = sfx ? sfx.muted : false;
+        document.querySelectorAll('.icon-sound-on').forEach(el => el.style.display = isMuted ? 'none' : 'block');
+        document.querySelectorAll('.icon-sound-off').forEach(el => el.style.display = isMuted ? 'block' : 'none');
+        if (settingSfxToggle) settingSfxToggle.checked = !isMuted;
+    }
+
+    function setupAudioUI() {
+        const toggleSound = () => {
+            sfx.init();
+            sfx.muted = !sfx.muted;
+            if (career.settings) {
+                career.settings.sfx = !sfx.muted;
+                saveCareerData();
+            }
+            syncAudioUI();
+        };
+
+        if (btnSound) btnSound.addEventListener('click', toggleSound);
+        if (btnHomeSound) btnHomeSound.addEventListener('click', toggleSound);
+
+        const initAudioOnGesture = () => {
+            sfx.init();
+            if (career.settings && career.settings.bgm && !sfx.muted) {
+                sfx.startBGM();
+            }
+        };
+
+        window.addEventListener('click', initAudioOnGesture, { once: true });
+        window.addEventListener('keydown', initAudioOnGesture, { once: true });
+        window.addEventListener('touchstart', initAudioOnGesture, { once: true });
+    }
+
+    function setupScreenFlow() {
+        // Home Screen Buttons
+        if (cardPlayClassic) cardPlayClassic.addEventListener('click', startClassicMode);
+        if (cardPlayAdventure) cardPlayAdventure.addEventListener('click', () => showScreen('adventure-map'));
+        if (btnOpenCodex) btnOpenCodex.addEventListener('click', () => {
+            codexPreviousScreen = 'home';
+            showScreen('codex');
+        });
+        if (btnOpenSettings) btnOpenSettings.addEventListener('click', () => {
+            if (modalSettings) modalSettings.classList.add('visible');
+        });
+        if (btnHomeSettings) btnHomeSettings.addEventListener('click', () => {
+            if (modalSettings) modalSettings.classList.add('visible');
+        });
+
+        // Adventure Map
+        if (btnAdvToHome) btnAdvToHome.addEventListener('click', () => showScreen('home'));
+
+        // Game Arena
+        if (btnPause) btnPause.addEventListener('click', () => togglePause());
+
+        // Pause Modal Actions
+        if (btnPauseResume) btnPauseResume.addEventListener('click', () => togglePause(false));
+        if (btnPauseRestart) btnPauseRestart.addEventListener('click', () => {
+            togglePause(false);
+            restartCurrentGame();
+        });
+        if (btnPauseCodex) btnPauseCodex.addEventListener('click', () => {
+            codexPreviousScreen = 'game';
+            showScreen('codex');
+        });
+        if (btnPauseSettings) btnPauseSettings.addEventListener('click', () => {
+            if (modalSettings) modalSettings.classList.add('visible');
+        });
+        if (btnPauseQuit) btnPauseQuit.addEventListener('click', () => {
+            togglePause(false);
+            showScreen('home');
+        });
+
+        // Victory Modal Actions
+        if (btnVicNext) btnVicNext.addEventListener('click', () => {
+            if (modalVictory) modalVictory.classList.remove('visible');
+            if (activeAdventureLevel && activeAdventureLevel.id < ADVENTURE_LEVELS.length) {
+                startAdventureLevel(activeAdventureLevel.id + 1);
+            } else {
+                showScreen('adventure-map');
+            }
+        });
+        if (btnVicReplay) btnVicReplay.addEventListener('click', () => {
+            if (modalVictory) modalVictory.classList.remove('visible');
+            if (activeAdventureLevel) {
+                startAdventureLevel(activeAdventureLevel.id);
+            }
+        });
+        if (btnVicMap) btnVicMap.addEventListener('click', () => {
+            if (modalVictory) modalVictory.classList.remove('visible');
+            showScreen('adventure-map');
+        });
+
+        // Settings Modal Actions
+        if (btnCloseSettings) btnCloseSettings.addEventListener('click', () => {
+            if (modalSettings) modalSettings.classList.remove('visible');
+        });
+        if (btnSettingsSave) btnSettingsSave.addEventListener('click', () => {
+            if (modalSettings) modalSettings.classList.remove('visible');
+        });
+
+        if (settingSfxToggle) {
+            settingSfxToggle.addEventListener('change', (e) => {
+                sfx.muted = !e.target.checked;
+                career.settings.sfx = e.target.checked;
+                saveCareerData();
+                syncAudioUI();
+            });
+        }
+
+        if (settingBgmToggle) {
+            settingBgmToggle.addEventListener('change', (e) => {
+                career.settings.bgm = e.target.checked;
+                sfx.toggleBGM(e.target.checked);
+                saveCareerData();
+            });
+        }
+
+        if (settingShakeSelect) {
+            settingShakeSelect.addEventListener('change', (e) => {
+                career.settings.shake = e.target.value;
+                saveCareerData();
+            });
+        }
+
+        if (btnResetData) {
+            btnResetData.addEventListener('click', () => {
+                if (confirm('Are you sure you want to reset all stars, campaign progress, and high scores?')) {
+                    career = {
+                        highScore: 0,
+                        unlockedLevel: 1,
+                        levelStars: {},
+                        levelHighScores: {},
+                        settings: { sfx: true, bgm: true, shake: 'high' }
+                    };
+                    saveCareerData();
+                    updateCareerDisplays();
+                    renderAdventureMap();
+                    alert('Career progress has been reset.');
+                }
+            });
+        }
+
+        // Codex Tabs & Buttons
+        if (btnCodexToHome) btnCodexToHome.addEventListener('click', () => showScreen(codexPreviousScreen));
+        if (btnCodexClose) btnCodexClose.addEventListener('click', () => showScreen(codexPreviousScreen));
+
+        const codexTabs = document.querySelectorAll('.codex-tab');
+        const codexContents = document.querySelectorAll('.codex-tab-content');
+        codexTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                codexTabs.forEach(t => t.classList.remove('active'));
+                codexContents.forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                const target = document.getElementById(`tab-${tabId}`);
+                if (target) target.classList.add('active');
+                sfx.playMove();
+            });
+        });
+
+        // Game Over Menu Action
+        if (btnGoMenu) {
+            btnGoMenu.addEventListener('click', () => {
+                if (modalGameOver) modalGameOver.classList.remove('visible');
+                if (gameMode === 'adventure') {
+                    showScreen('adventure-map');
+                } else {
+                    showScreen('home');
+                }
+            });
+        }
+    }
+
+    // Initialization
     function init() {
         if (!CanvasRenderingContext2D.prototype.roundRect) {
             CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r = 8) {
@@ -140,28 +731,20 @@
             };
         }
 
+        // Apply audio settings
+        if (sfx && career.settings) {
+            sfx.muted = !career.settings.sfx;
+        }
+
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
         setupInputs();
         setupAudioUI();
         setupFullscreenUI();
+        setupScreenFlow();
 
-        bestVal.textContent = highScore.toLocaleString();
-        startNewGame();
+        showScreen('home');
         requestAnimationFrame(gameLoop);
-    }
-
-    function setupAudioUI() {
-        btnSound.addEventListener('click', () => {
-            sfx.init();
-            sfx.muted = !sfx.muted;
-            iconSoundOn.style.display = sfx.muted ? 'none' : 'block';
-            iconSoundOff.style.display = sfx.muted ? 'block' : 'none';
-        });
-
-        // First click anywhere activates AudioContext
-        window.addEventListener('click', () => sfx.init(), { once: true });
-        window.addEventListener('keydown', () => sfx.init(), { once: true });
     }
 
     function resizeCanvas() {
@@ -205,17 +788,26 @@
         isSwapModeActive = false;
         firstSwapTile = null;
         dropsSinceSwapCharge = 0;
-        currentBounty = generateBounty();
 
-        // Seed bottom 2 rows with interesting mix of numbers and dark matter
-        populateInitialBoard();
+        if (gameMode === 'classic') {
+            currentBounty = generateBounty();
+            populateInitialBoard();
+        } else if (gameMode === 'adventure') {
+            currentBounty = null;
+            adventureProgress = 0;
+            adventureObjectiveMet = false;
+            dropsUsed = 0;
+            if (activeAdventureLevel) {
+                maxDrops = activeAdventureLevel.maxDrops;
+            }
+        }
 
         // Initialize upcoming queues
         nextQueue = [generateOrb(), generateOrb(), generateOrb()];
         currentOrb = generateOrb();
 
         updateHUD();
-        modalGameOver.classList.remove('visible');
+        if (modalGameOver) modalGameOver.classList.remove('visible');
     }
 
     function populateInitialBoard() {
@@ -319,6 +911,10 @@
         }
 
         isProcessing = true;
+        if (gameMode === 'adventure') {
+            dropsUsed++;
+            updateHUD();
+        }
         activeProjectile = {
             col: col,
             orb: currentOrb,
@@ -553,10 +1149,12 @@
             }
 
             if (!isSwap) {
-                movesUntilRise--;
-                if (movesUntilRise <= 0) {
-                    movesUntilRise = MOVES_PER_RISE;
-                    await pushRisingRow();
+                if (gameMode === 'classic') {
+                    movesUntilRise--;
+                    if (movesUntilRise <= 0) {
+                        movesUntilRise = MOVES_PER_RISE;
+                        await pushRisingRow();
+                    }
                 }
             }
 
@@ -694,6 +1292,7 @@
                     const tileB = grid[r][c + 1];
                     if (tileB && tileB.type === 'number' && tileA.value + tileB.value === 0) {
                         totalZeroPoints++;
+                        checkAdventureObjective('annihilations', 1);
                         const magnitude = Math.abs(tileA.value);
                         await playZeroPointCollapseAnim(r, c, r, c + 1, tileA, tileB, magnitude, chainStep);
                         return true;
@@ -705,6 +1304,7 @@
                     const tileB = grid[r + 1][c];
                     if (tileB && tileB.type === 'number' && tileA.value + tileB.value === 0) {
                         totalZeroPoints++;
+                        checkAdventureObjective('annihilations', 1);
                         const magnitude = Math.abs(tileA.value);
                         await playZeroPointCollapseAnim(r, c, r + 1, c, tileA, tileB, magnitude, chainStep);
                         return true;
@@ -724,6 +1324,7 @@
                     const tileB = grid[r][c + 1];
                     if (tileB && tileB.type === 'number' && tileA.value === tileB.value) {
                         const fusedVal = tileA.value * 2;
+                        checkAdventureObjective('synthesis_tier', Math.abs(fusedVal));
                         await playSynthesisMergeAnim(r, c, r, c + 1, tileA, tileB, fusedVal, chainStep);
                         return true;
                     }
@@ -734,6 +1335,7 @@
                     const tileB = grid[r + 1][c];
                     if (tileB && tileB.type === 'number' && tileA.value === tileB.value) {
                         const fusedVal = tileA.value * 2;
+                        checkAdventureObjective('synthesis_tier', Math.abs(fusedVal));
                         await playSynthesisMergeAnim(r, c, r + 1, c, tileA, tileB, fusedVal, chainStep);
                         return true;
                     }
@@ -861,6 +1463,7 @@
         // Tactical Bounty checks & Supernova Token Bonus
         if (tier >= 3) {
             checkBountyProgress('laser', 1);
+            checkAdventureObjective('trigger_laser', magnitude);
         }
         if (tier >= 4) {
             checkBountyProgress('supernova', 1);
@@ -887,6 +1490,7 @@
                 grid[r][c] = createTile(val);
                 addFloatingText('SHATTERED!', nx, ny, '#fff');
                 addScore(150);
+                checkAdventureObjective('clear_dark_matter', 1);
             } else {
                 target.flash = 0.8;
             }
@@ -985,34 +1589,195 @@
         await delay(200);
     }
 
+    function countRemainingDarkMatter() {
+        let count = 0;
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                if (grid[r][c] && grid[r][c].type === 'dark_matter') {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    function checkAdventureObjective(type, payload = 1) {
+        if (gameMode !== 'adventure' || !activeAdventureLevel || isGameOver) return;
+        const obj = activeAdventureLevel.objective;
+        if (!obj) return;
+
+        if (obj.type === 'annihilations' && type === 'annihilations') {
+            adventureProgress = Math.min(obj.target, adventureProgress + payload);
+            if (adventureProgress >= obj.target) adventureObjectiveMet = true;
+        } else if (obj.type === 'synthesis_tier' && type === 'synthesis_tier') {
+            if (payload >= obj.target) {
+                adventureProgress = obj.target;
+                adventureObjectiveMet = true;
+            } else {
+                adventureProgress = Math.max(adventureProgress, payload);
+            }
+        } else if (obj.type === 'clear_dark_matter' && type === 'clear_dark_matter') {
+            const remaining = countRemainingDarkMatter();
+            adventureProgress = Math.max(0, obj.target - remaining);
+            if (remaining === 0) {
+                adventureProgress = obj.target;
+                adventureObjectiveMet = true;
+            }
+        } else if (obj.type === 'trigger_laser' && type === 'trigger_laser') {
+            adventureProgress = 1;
+            adventureObjectiveMet = true;
+        } else if (obj.type === 'activate_frenzy' && type === 'activate_frenzy') {
+            adventureProgress = 1;
+            adventureObjectiveMet = true;
+        }
+
+        updateAdventureObjectiveUI();
+    }
+
+    function updateAdventureObjectiveUI() {
+        if (!activeAdventureLevel || gameMode !== 'adventure') return;
+        const obj = activeAdventureLevel.objective;
+        if (!obj) return;
+
+        if (advObjDesc) advObjDesc.textContent = activeAdventureLevel.desc;
+
+        let currentVal = adventureProgress;
+        let targetVal = obj.target;
+        let text = `${Math.min(currentVal, targetVal)} / ${targetVal}`;
+        let pct = Math.min(100, Math.round((currentVal / targetVal) * 100));
+
+        if (obj.type === 'synthesis_tier') {
+            text = currentVal >= targetVal ? 'COMPLETE! ✨' : `+${currentVal} / +${targetVal}`;
+            pct = currentVal >= targetVal ? 100 : Math.round((currentVal / targetVal) * 100);
+        } else if (obj.type === 'activate_frenzy' || obj.type === 'trigger_laser') {
+            text = currentVal >= targetVal ? 'COMPLETE! 🔥' : 'Pending...';
+            pct = currentVal >= targetVal ? 100 : 0;
+        }
+
+        if (advObjProgress) advObjProgress.textContent = text;
+        if (advObjFill) advObjFill.style.width = `${pct}%`;
+
+        // Real-time 3-star preview
+        const s1 = adventureProgress >= targetVal ? '⭐' : '☆';
+        const s2 = dropsUsed <= activeAdventureLevel.targetDropsForStar ? '⭐' : '☆';
+        const s3 = score >= activeAdventureLevel.targetScoreForStar ? '⭐' : '☆';
+        if (advObjStars) advObjStars.textContent = `${s1}${s2}${s3}`;
+    }
+
     function checkGameOver() {
-        // If any tile reaches row 0, reactor breach!
+        // 1. If any tile reaches row 0, reactor breach!
         for (let c = 0; c < COLS; c++) {
             if (grid[0][c]) {
-                isGameOver = true;
-                sfx.playGameOver();
-                triggerScreenShake(18);
+                triggerGameOver("The reactor exceeded critical threshold capacity!");
+                return;
+            }
+        }
 
-                // Update game over modal stats
-                document.getElementById('go-score').textContent = score.toLocaleString();
-                document.getElementById('go-best').textContent = highScore.toLocaleString();
-                document.getElementById('go-cascade').textContent = `${maxCombo}x`;
-                document.getElementById('go-zeroes').textContent = totalZeroPoints;
-
-                setTimeout(() => {
-                    modalGameOver.classList.add('visible');
-                }, 400);
+        // 2. Adventure Mode Completion / Depletion checks
+        if (gameMode === 'adventure') {
+            if (adventureObjectiveMet) {
+                triggerAdventureVictory();
+                return;
+            }
+            if (dropsUsed >= maxDrops) {
+                triggerGameOver("Out of Quantum Drops! The sector could not be stabilized in time.");
                 return;
             }
         }
     }
 
+    function triggerGameOver(message = "The reactor exceeded critical threshold capacity!") {
+        isGameOver = true;
+        sfx.playGameOver();
+        triggerScreenShake(18);
+
+        const goScore = document.getElementById('go-score');
+        const goBest = document.getElementById('go-best');
+        const goCascade = document.getElementById('go-cascade');
+        const goZeroes = document.getElementById('go-zeroes');
+        if (goScore) goScore.textContent = score.toLocaleString();
+        if (goBest) {
+            const best = gameMode === 'classic' ? (career.highScore || 0) : ((activeAdventureLevel && career.levelHighScores[activeAdventureLevel.id]) || 0);
+            goBest.textContent = best.toLocaleString();
+        }
+        if (goCascade) goCascade.textContent = `${maxCombo}x`;
+        if (goZeroes) goZeroes.textContent = totalZeroPoints;
+
+        const descEl = modalGameOver.querySelector('p');
+        if (descEl) descEl.textContent = message;
+
+        setTimeout(() => {
+            if (modalGameOver) modalGameOver.classList.add('visible');
+        }, 400);
+    }
+
+    function triggerAdventureVictory() {
+        if (isGameOver || (modalVictory && modalVictory.classList.contains('visible'))) return;
+        isGameOver = true;
+        sfx.playVictory();
+        triggerScreenShake(8);
+
+        const star1 = 1;
+        const star2 = dropsUsed <= activeAdventureLevel.targetDropsForStar ? 1 : 0;
+        const star3 = score >= activeAdventureLevel.targetScoreForStar ? 1 : 0;
+        const totalStars = star1 + star2 + star3;
+
+        const dropsLeft = Math.max(0, maxDrops - dropsUsed);
+        const dropBonus = dropsLeft * 200;
+        const finalScore = score + dropBonus;
+        score = finalScore;
+        scoreVal.textContent = score.toLocaleString();
+
+        addFloatingText('SECTOR CLEARED!', canvas.width / (2 * dpr), boardOffsetY + cellH * 2.5, 'var(--gold)', 1.5);
+
+        const lvlId = activeAdventureLevel.id;
+        career.levelStars[lvlId] = Math.max(career.levelStars[lvlId] || 0, totalStars);
+        career.levelHighScores[lvlId] = Math.max(career.levelHighScores[lvlId] || 0, finalScore);
+        if (lvlId >= career.unlockedLevel && lvlId < ADVENTURE_LEVELS.length) {
+            career.unlockedLevel = lvlId + 1;
+        }
+        saveCareerData();
+
+        if (victoryTitle) victoryTitle.textContent = `${activeAdventureLevel.sector} Cleared!`;
+        if (vicScore) vicScore.textContent = finalScore.toLocaleString();
+        if (vicDrops) vicDrops.textContent = `${dropsUsed} / ${maxDrops}`;
+        if (vicBonus) vicBonus.textContent = `+${dropBonus.toLocaleString()}`;
+        if (vicCascade) vicCascade.textContent = `${maxCombo}x`;
+
+        if (victoryStarsContainer) {
+            victoryStarsContainer.innerHTML = `
+                <span class="vic-star ${totalStars >= 1 ? 'active' : ''}">⭐</span>
+                <span class="vic-star ${totalStars >= 2 ? 'active' : ''}">⭐</span>
+                <span class="vic-star ${totalStars >= 3 ? 'active' : ''}">⭐</span>
+            `;
+        }
+
+        if (btnVicNext) {
+            if (lvlId < ADVENTURE_LEVELS.length) {
+                btnVicNext.textContent = 'Next Sector ➜';
+            } else {
+                btnVicNext.textContent = 'Campaign Complete 🏆';
+            }
+        }
+
+        setTimeout(() => {
+            if (modalVictory) modalVictory.classList.add('visible');
+        }, 500);
+    }
+
     function addScore(pts) {
         score += pts;
-        if (score > highScore) {
-            highScore = score;
-            localStorage.setItem('zeropoint_highscore', highScore.toString());
-            bestVal.textContent = highScore.toLocaleString();
+        if (gameMode === 'classic') {
+            if (score > career.highScore) {
+                career.highScore = score;
+                saveCareerData();
+                bestVal.textContent = career.highScore.toLocaleString();
+            }
+        } else if (gameMode === 'adventure' && activeAdventureLevel) {
+            const lvlBest = career.levelHighScores[activeAdventureLevel.id] || 0;
+            if (score > lvlBest) {
+                bestVal.textContent = score.toLocaleString();
+            }
         }
         scoreVal.textContent = score.toLocaleString();
     }
@@ -1062,6 +1827,7 @@
 
         addFloatingText('🔥 SINGULARITY FRENZY! 🔥', canvas.width / (2 * dpr), boardOffsetY + cellH * 3, '#ffd700', 1.5);
         checkBountyProgress('frenzy', 1);
+        checkAdventureObjective('activate_frenzy', 1);
         updateHUD();
     }
 
@@ -1408,7 +2174,16 @@
 
     function updateHUD() {
         comboVal.textContent = `${combo}x`;
-        riseCounter.textContent = `${movesUntilRise} Drop${movesUntilRise === 1 ? '' : 's'}`;
+
+        if (gameMode === 'adventure') {
+            const dropsRemaining = Math.max(0, maxDrops - dropsUsed);
+            riseCounter.textContent = `${dropsRemaining} Drop${dropsRemaining === 1 ? '' : 's'}`;
+            if (turnCounterLabel) turnCounterLabel.textContent = 'Drops Left';
+            updateAdventureObjectiveUI();
+        } else {
+            riseCounter.textContent = `${movesUntilRise} Drop${movesUntilRise === 1 ? '' : 's'}`;
+            if (turnCounterLabel) turnCounterLabel.textContent = 'Rising In';
+        }
 
         // Update Overdrive Gauge
         if (overdriveContainer && overdrivePercent && overdriveFill) {
@@ -1494,7 +2269,7 @@
     function setupInputs() {
         // Mouse Hover & Click
         canvas.addEventListener('mousemove', (e) => {
-            if (isProcessing || isGameOver) return;
+            if (isProcessing || isGameOver || isPaused || currentScreen !== 'game') return;
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const col = Math.floor(mouseX / cellW);
@@ -1510,7 +2285,7 @@
         let touchStartY = 0;
 
         canvas.addEventListener('click', (e) => {
-            if (isProcessing || isGameOver) return;
+            if (isProcessing || isGameOver || isPaused || currentScreen !== 'game') return;
             if (Date.now() - lastTouchTime < 450) return; // Prevent ghost click on mobile touch
 
             const rect = canvas.getBoundingClientRect();
@@ -1530,7 +2305,7 @@
         });
 
         canvas.addEventListener('touchstart', (e) => {
-            if (isProcessing || isGameOver) return;
+            if (isProcessing || isGameOver || isPaused || currentScreen !== 'game') return;
             lastTouchTime = Date.now();
 
             const rect = canvas.getBoundingClientRect();
@@ -1549,7 +2324,7 @@
         }, { passive: true });
 
         canvas.addEventListener('touchmove', (e) => {
-            if (isProcessing || isGameOver || isSwapModeActive) return;
+            if (isProcessing || isGameOver || isPaused || currentScreen !== 'game' || isSwapModeActive) return;
             const rect = canvas.getBoundingClientRect();
             const touchX = e.touches[0].clientX - rect.left;
             const col = Math.floor(touchX / cellW);
@@ -1561,7 +2336,22 @@
 
         // Keyboard Controls
         window.addEventListener('keydown', (e) => {
-            if (isGameOver) return;
+            if (e.code === 'Escape' || e.key === 'p' || e.key === 'P') {
+                if (currentScreen === 'game') {
+                    if (isSwapModeActive) {
+                        isSwapModeActive = false;
+                        firstSwapTile = null;
+                        if (swapBanner) swapBanner.style.display = 'none';
+                        updateHUD();
+                    } else {
+                        togglePause();
+                    }
+                }
+                return;
+            }
+
+            if (isGameOver || isPaused || currentScreen !== 'game') return;
+
             if (e.code === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
                 if (aimCol > 0) {
                     aimCol--;
@@ -1584,31 +2374,21 @@
             } else if (e.key === 'f' || e.key === 'F') {
                 activateOverdrive();
             } else if (e.key === 'r' || e.key === 'R') {
-                startNewGame();
-            } else if (e.code === 'Escape') {
-                if (isSwapModeActive) {
-                    isSwapModeActive = false;
-                    firstSwapTile = null;
-                    if (swapBanner) swapBanner.style.display = 'none';
-                    updateHUD();
-                }
+                restartCurrentGame();
             }
         });
 
         // Button Listeners
-        holdSlot.addEventListener('click', swapHold);
-        btnTouchHold.addEventListener('click', swapHold);
-        btnTouchDrop.addEventListener('click', dropActiveOrb);
+        if (holdSlot) holdSlot.addEventListener('click', swapHold);
+        if (btnTouchHold) btnTouchHold.addEventListener('click', swapHold);
+        if (btnTouchDrop) btnTouchDrop.addEventListener('click', dropActiveOrb);
         if (btnSwapToken) btnSwapToken.addEventListener('click', toggleSwapMode);
         if (btnTouchSwap) btnTouchSwap.addEventListener('click', toggleSwapMode);
         if (btnOverdrive) btnOverdrive.addEventListener('click', activateOverdrive);
         if (btnTouchFrenzy) btnTouchFrenzy.addEventListener('click', activateOverdrive);
 
-        btnHelp.addEventListener('click', () => modalHelp.classList.add('visible'));
-        btnCloseHelp.addEventListener('click', () => modalHelp.classList.remove('visible'));
-        btnStart.addEventListener('click', () => modalHelp.classList.remove('visible'));
-        btnRestart.addEventListener('click', startNewGame);
-        btnPlayAgain.addEventListener('click', startNewGame);
+        if (btnRestart) btnRestart.addEventListener('click', restartCurrentGame);
+        if (btnPlayAgain) btnPlayAgain.addEventListener('click', restartCurrentGame);
 
         // Resume audio and unstick processing on tab visibility changes / play breaks
         document.addEventListener('visibilitychange', () => {
@@ -1639,8 +2419,12 @@
         const dt = Math.min((now - lastTime) / 1000, 0.1);
         lastTime = now;
 
-        update(dt);
-        render();
+        if (!isPaused && currentScreen === 'game') {
+            update(dt);
+        }
+        if (currentScreen === 'game') {
+            render();
+        }
 
         requestAnimationFrame(gameLoop);
     }
@@ -2776,7 +3560,8 @@
     }
 
     function triggerScreenShake(magnitude = 6) {
-        screenShake = Math.max(screenShake, magnitude);
+        const factor = (career && career.settings) ? (career.settings.shake === 'off' ? 0 : career.settings.shake === 'mild' ? 0.4 : 1.0) : 1.0;
+        screenShake = Math.max(screenShake, magnitude * factor);
     }
 
     function delay(ms) {
