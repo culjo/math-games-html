@@ -19,7 +19,9 @@
 
     // Screens & Views
     const screenHome = document.getElementById('screen-home');
-    const screenAdventureMap = document.getElementById('screen-adventure-map');
+    const screenAdventureNodes = document.getElementById('screen-adventure-nodes');
+    const screenChallenges = document.getElementById('screen-challenges');
+    const screenAdventureMap = document.getElementById('screen-adventure-map') || screenChallenges;
     const screenGame = document.getElementById('screen-game');
     const screenCodex = document.getElementById('screen-codex');
 
@@ -28,6 +30,7 @@
     const modalVictory = document.getElementById('modal-victory');
     const modalSettings = document.getElementById('modal-settings');
     const modalGameOver = document.getElementById('modal-gameover');
+    const modalNodePreview = document.getElementById('modal-node-preview');
 
     // Home Screen DOM Elements
     const btnHomeSound = document.getElementById('btn-home-sound');
@@ -36,8 +39,10 @@
     const homeStarsPill = document.getElementById('home-stars-pill');
     const cardPlayClassic = document.getElementById('card-play-classic');
     const cardPlayAdventure = document.getElementById('card-play-adventure');
+    const cardPlayChallenges = document.getElementById('card-play-challenges');
     const homeCardHighscore = document.getElementById('home-card-highscore');
     const homeCardStars = document.getElementById('home-card-stars');
+    const homeCardChallengeStars = document.getElementById('home-card-challenge-stars');
     const btnOpenCodex = document.getElementById('btn-open-codex');
     const btnOpenSettings = document.getElementById('btn-open-settings');
 
@@ -49,10 +54,41 @@
     const tutorialTitle = document.getElementById('tutorial-title');
     const tutorialDesc = document.getElementById('tutorial-desc');
 
-    // Adventure Map DOM Elements
+    // Adventure Constellation Nodes DOM Elements
+    const btnAdvNodesBack = document.getElementById('btn-adv-nodes-back');
+    const advNodesSectorBadge = document.getElementById('adv-nodes-sector-badge');
+    const advNodesSectorTitle = document.getElementById('adv-nodes-sector-title');
+    const advNodesStarsPill = document.getElementById('adv-nodes-stars-pill');
+    const btnPrevSector = document.getElementById('btn-prev-sector');
+    const btnNextSector = document.getElementById('btn-next-sector');
+    const sectorIndicatorText = document.getElementById('sector-indicator-text');
+    const advMapViewport = document.getElementById('adv-map-viewport');
+    const advMapSvg = document.getElementById('adv-map-svg');
+    const advMapNodesLayer = document.getElementById('adv-map-nodes-layer');
+
+    // Challenges DOM Elements
+    const btnChallengesToHome = document.getElementById('btn-challenges-to-home') || document.getElementById('btn-adv-to-home');
+    const challengesHeaderStars = document.getElementById('challenges-header-stars') || document.getElementById('adv-header-stars');
+    const challengesLevelsGrid = document.getElementById('challenges-levels-grid') || document.getElementById('adventure-levels-grid');
     const btnAdvToHome = document.getElementById('btn-adv-to-home');
     const advHeaderStars = document.getElementById('adv-header-stars');
     const adventureLevelsGrid = document.getElementById('adventure-levels-grid');
+
+    // Node Preview Modal DOM Elements
+    const nodePreviewSectorBadge = document.getElementById('node-preview-sector-badge');
+    const nodePreviewIdBadge = document.getElementById('node-preview-id-badge');
+    const nodePreviewTitle = document.getElementById('node-preview-title');
+    const nodePreviewDesc = document.getElementById('node-preview-desc');
+    const nodePreviewModifiers = document.getElementById('node-preview-modifiers');
+    const starStatus1 = document.getElementById('star-status-1');
+    const starStatus2 = document.getElementById('star-status-2');
+    const starStatus3 = document.getElementById('star-status-3');
+    const starDesc2 = document.getElementById('star-desc-2');
+    const starDesc3 = document.getElementById('star-desc-3');
+    const nodeBestScore = document.getElementById('node-best-score');
+    const nodeBestDrops = document.getElementById('node-best-drops');
+    const btnLaunchNode = document.getElementById('btn-launch-node');
+    const btnCloseNodePreview = document.getElementById('btn-close-node-preview');
 
     // Game Arena Header & Stats
     const gameModeDisplay = document.getElementById('game-mode-display');
@@ -282,9 +318,12 @@
     function loadCareerData() {
         const defaultCareer = {
             highScore: 0,
-            unlockedLevel: 1,
+            unlockedLevel: 1, // for Challenges
             levelStars: {},
             levelHighScores: {},
+            adventureNodes: {}, // { [nodeId]: { cleared: true, stars: 3, bestScore: 210, bestDrops: 5 } }
+            unlockedNodes: ['1-1'],
+            currentSector: 1,
             settings: {
                 sfx: true,
                 bgm: true,
@@ -300,6 +339,9 @@
                 return {
                     ...defaultCareer,
                     ...parsed,
+                    adventureNodes: parsed.adventureNodes || {},
+                    unlockedNodes: (parsed.unlockedNodes && parsed.unlockedNodes.length > 0) ? parsed.unlockedNodes : ['1-1'],
+                    currentSector: parsed.currentSector || 1,
                     settings: { ...defaultCareer.settings, ...(parsed.settings || {}) }
                 };
             }
@@ -335,17 +377,36 @@
         return total;
     }
 
+    function getNodeTotalStars() {
+        if (!career || !career.adventureNodes) return 0;
+        let total = 0;
+        Object.values(career.adventureNodes).forEach(node => {
+            if (node && node.stars) total += node.stars;
+        });
+        return total;
+    }
+
+    function getClearedNodesCount() {
+        if (!career || !career.adventureNodes) return 0;
+        return Object.values(career.adventureNodes).filter(n => n && n.cleared).length;
+    }
+
     function updateCareerDisplays() {
-        const totalStars = getTotalStars();
+        const totalChallengeStars = getTotalStars();
         const campaignLevels = ADVENTURE_LEVELS.filter(lvl => !lvl.isTutorial);
-        const maxStars = campaignLevels.length * 3;
+        const maxChallengeStars = campaignLevels.length * 3;
+        const totalNodeStars = getNodeTotalStars();
+        const clearedNodes = getClearedNodesCount();
         const best = career.highScore || 0;
 
         if (homeBestPill) homeBestPill.textContent = `🏆 Best: ${best.toLocaleString()} pts`;
-        if (homeStarsPill) homeStarsPill.textContent = `⭐ ${totalStars}/${maxStars} Stars`;
+        if (homeStarsPill) homeStarsPill.textContent = `⭐ ${totalNodeStars} Stars (${clearedNodes} Nodes)`;
         if (homeCardHighscore) homeCardHighscore.textContent = `Best: ${best.toLocaleString()}`;
-        if (homeCardStars) homeCardStars.textContent = `⭐ ${totalStars} / ${maxStars}`;
-        if (advHeaderStars) advHeaderStars.textContent = `⭐ ${totalStars} / ${maxStars}`;
+        if (homeCardStars) homeCardStars.textContent = `⭐ ${totalNodeStars} Stars (${clearedNodes} Cleared)`;
+        if (homeCardChallengeStars) homeCardChallengeStars.textContent = `⭐ ${totalChallengeStars} / ${maxChallengeStars}`;
+        if (challengesHeaderStars) challengesHeaderStars.textContent = `⭐ ${totalChallengeStars} / ${maxChallengeStars}`;
+        if (advHeaderStars) advHeaderStars.textContent = `⭐ ${totalChallengeStars} / ${maxChallengeStars}`;
+        if (advNodesStarsPill) advNodesStarsPill.textContent = `⭐ ${totalNodeStars} Stars`;
 
         if (settingSfxToggle && career.settings) settingSfxToggle.checked = !!career.settings.sfx;
         if (settingBgmToggle && career.settings) settingBgmToggle.checked = !!career.settings.bgm;
@@ -435,9 +496,12 @@
 
     // Initialization
     // Screen Navigation & Flows
+    let currentViewingSector = 1;
+    let pendingNodeConfig = null;
+
     function showScreen(screenId) {
         currentScreen = screenId;
-        const screens = [screenHome, screenAdventureMap, screenGame, screenCodex];
+        const screens = [screenHome, screenAdventureNodes, screenChallenges, screenAdventureMap, screenGame, screenCodex];
         screens.forEach(s => {
             if (s) s.classList.remove('active');
         });
@@ -450,9 +514,13 @@
         if (screenId === 'home') {
             if (screenHome) screenHome.classList.add('active');
             updateCareerDisplays();
-        } else if (screenId === 'adventure-map') {
-            if (screenAdventureMap) screenAdventureMap.classList.add('active');
-            renderAdventureMap();
+        } else if (screenId === 'adventure-nodes' || screenId === 'adventure-map') {
+            if (screenAdventureNodes) screenAdventureNodes.classList.add('active');
+            renderAdventureNodeMap(career.currentSector || 1);
+        } else if (screenId === 'challenges') {
+            if (screenChallenges) screenChallenges.classList.add('active');
+            else if (screenAdventureMap) screenAdventureMap.classList.add('active');
+            renderChallenges();
         } else if (screenId === 'game') {
             if (screenGame) screenGame.classList.add('active');
             setTimeout(resizeCanvas, 60);
@@ -463,9 +531,223 @@
         syncAudioUI();
     }
 
-    function renderAdventureMap() {
-        if (!adventureLevelsGrid) return;
-        adventureLevelsGrid.innerHTML = '';
+    // ==========================================================
+    // CONSTELLATION NODE MAP RENDERER
+    // ==========================================================
+    function renderAdventureNodeMap(sectorNum = 1) {
+        if (!advMapNodesLayer || !advMapSvg || typeof NodeGenerator === 'undefined') return;
+
+        currentViewingSector = sectorNum;
+        career.currentSector = sectorNum;
+
+        const graph = NodeGenerator.getSectorGraph(sectorNum);
+        const sectorMeta = graph.sectorMeta;
+
+        if (advNodesSectorBadge) advNodesSectorBadge.textContent = `SECTOR 0${sectorNum}`;
+        if (advNodesSectorTitle) advNodesSectorTitle.textContent = sectorMeta.name;
+        if (sectorIndicatorText) sectorIndicatorText.textContent = `Sector ${sectorNum} of ${NodeGenerator.SECTOR_METADATA.length}`;
+
+        if (btnPrevSector) btnPrevSector.disabled = sectorNum <= 1;
+        if (btnNextSector) btnNextSector.disabled = sectorNum >= NodeGenerator.SECTOR_METADATA.length;
+
+        // Clear existing nodes and SVG links
+        advMapNodesLayer.innerHTML = '';
+        advMapSvg.innerHTML = '';
+
+        // Unlocked node IDs set
+        const unlockedSet = new Set(career.unlockedNodes || ['1-1']);
+        unlockedSet.add('1-1'); // Root node is always unlocked
+
+        // Draw SVG Links first
+        const nodeMap = new Map();
+        graph.nodes.forEach(n => nodeMap.set(n.id, n));
+
+        graph.links.forEach(link => {
+            const fromNode = nodeMap.get(link.from);
+            const toNode = nodeMap.get(link.to);
+            if (!fromNode || !toNode) return;
+
+            const isToUnlocked = unlockedSet.has(toNode.id);
+            const isFromCleared = career.adventureNodes && career.adventureNodes[fromNode.id]?.cleared;
+
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', `${fromNode.x}%`);
+            line.setAttribute('y1', `${fromNode.y}%`);
+            line.setAttribute('x2', `${toNode.x}%`);
+            line.setAttribute('y2', `${toNode.y}%`);
+
+            if (link.isBonusBranch) {
+                line.setAttribute('class', 'map-link-bonus');
+            } else if (isFromCleared && isToUnlocked) {
+                line.setAttribute('class', 'map-link-active');
+            } else {
+                line.setAttribute('class', 'map-link-locked');
+            }
+            advMapSvg.appendChild(line);
+        });
+
+        // Draw Nodes
+        graph.nodes.forEach(node => {
+            const isCleared = career.adventureNodes && career.adventureNodes[node.id]?.cleared;
+            const nodeData = career.adventureNodes ? career.adventureNodes[node.id] : null;
+            const stars = nodeData ? (nodeData.stars || 0) : 0;
+            const isUnlocked = unlockedSet.has(node.id) || isCleared;
+            const isCurrent = isUnlocked && !isCleared;
+
+            const nodeEl = document.createElement('div');
+            let classList = `map-node ${isUnlocked ? 'node-unlocked' : 'node-locked'}`;
+            if (isCurrent) classList += ' node-current';
+            if (isCleared) classList += ' node-cleared';
+            if (node.type === 'bonus') classList += ' node-bonus';
+            if (node.type === 'boss') classList += ' node-boss';
+            nodeEl.className = classList;
+
+            nodeEl.style.left = `${node.x}%`;
+            nodeEl.style.top = `${node.y}%`;
+
+            let displayNum = node.num;
+            if (node.type === 'boss') displayNum = '👑';
+            else if (node.type === 'bonus') displayNum = '✦';
+
+            let starBadgeHtml = '';
+            if (isCleared && stars > 0) {
+                const starsStr = [1, 2, 3].map(i => i <= stars ? '⭐' : '☆').join('');
+                starBadgeHtml = `<div class="node-star-badge">${starsStr}</div>`;
+            }
+
+            nodeEl.innerHTML = `
+                <span class="node-label-pill">${node.id}</span>
+                <span class="node-num-label">${!isUnlocked ? '🔒' : displayNum}</span>
+                ${starBadgeHtml}
+            `;
+
+            if (isUnlocked) {
+                nodeEl.addEventListener('click', () => {
+                    sfx.init();
+                    sfx.playMove();
+                    triggerHaptic('tick');
+                    openNodePreview(node.config);
+                });
+            }
+
+            advMapNodesLayer.appendChild(nodeEl);
+        });
+
+        updateCareerDisplays();
+
+        // Auto-scroll to active node or bottom
+        setTimeout(() => {
+            if (advMapViewport) {
+                const currentNodeEl = advMapNodesLayer.querySelector('.node-current');
+                if (currentNodeEl) {
+                    const topPos = currentNodeEl.offsetTop - (advMapViewport.clientHeight / 2);
+                    advMapViewport.scrollTo({ top: Math.max(0, topPos), behavior: 'smooth' });
+                } else {
+                    advMapViewport.scrollTo({ top: advMapViewport.scrollHeight, behavior: 'smooth' });
+                }
+            }
+        }, 80);
+    }
+
+    function openNodePreview(config) {
+        if (!modalNodePreview || !config) return;
+        pendingNodeConfig = config;
+
+        const nodeData = career.adventureNodes ? career.adventureNodes[config.id] : null;
+        const stars = nodeData ? (nodeData.stars || 0) : 0;
+
+        if (nodePreviewSectorBadge) nodePreviewSectorBadge.textContent = `SECTOR 0${config.sectorNum}`;
+        if (nodePreviewIdBadge) nodePreviewIdBadge.textContent = `NODE ${config.id.toUpperCase()}`;
+        if (nodePreviewTitle) nodePreviewTitle.textContent = config.title;
+        if (nodePreviewDesc) nodePreviewDesc.textContent = config.desc;
+
+        // Modifiers list
+        if (nodePreviewModifiers) {
+            nodePreviewModifiers.innerHTML = '';
+            const mods = config.rules?.modifiers || [];
+            if (mods.length === 0) {
+                const standardMod = document.createElement('span');
+                standardMod.className = 'node-modifier-pill';
+                standardMod.innerHTML = '⚛️ Standard Equilibrium';
+                nodePreviewModifiers.appendChild(standardMod);
+            } else {
+                mods.forEach(m => {
+                    const pill = document.createElement('span');
+                    pill.className = 'node-modifier-pill';
+                    pill.innerHTML = `${m.icon} ${m.label}`;
+                    nodePreviewModifiers.appendChild(pill);
+                });
+            }
+        }
+
+        // Star targets
+        if (starDesc2) starDesc2.textContent = `Finish within ${config.targetDropsForStar} Drops`;
+        if (starDesc3) starDesc3.textContent = `Score ${config.targetScoreForStar}+ Points`;
+
+        if (starStatus1) starStatus1.textContent = stars >= 1 ? '⭐' : '☆';
+        if (starStatus2) starStatus2.textContent = stars >= 2 ? '⭐' : '☆';
+        if (starStatus3) starStatus3.textContent = stars >= 3 ? '⭐' : '☆';
+
+        const row1 = document.getElementById('target-star-1');
+        const row2 = document.getElementById('target-star-2');
+        const row3 = document.getElementById('target-star-3');
+        if (row1) row1.className = `star-target-row ${stars >= 1 ? 'achieved' : ''}`;
+        if (row2) row2.className = `star-target-row ${stars >= 2 ? 'achieved' : ''}`;
+        if (row3) row3.className = `star-target-row ${stars >= 3 ? 'achieved' : ''}`;
+
+        // Records
+        if (nodeBestScore) nodeBestScore.textContent = nodeData && nodeData.bestScore ? `${nodeData.bestScore.toLocaleString()} pts` : '-';
+        if (nodeBestDrops) nodeBestDrops.textContent = nodeData && nodeData.bestDrops ? `${nodeData.bestDrops} drops` : '-';
+
+        modalNodePreview.classList.add('visible');
+    }
+
+    function startNodeLevel(config) {
+        if (!config) return;
+        gameMode = 'adventure';
+        isTutorial = false;
+        activeAdventureLevel = config;
+        adventureProgress = 0;
+        adventureObjectiveMet = false;
+        dropsUsed = 0;
+        maxDrops = config.maxDrops;
+        isGameOver = false;
+        isPaused = false;
+
+        if (modalPause) modalPause.classList.remove('visible');
+        if (modalVictory) modalVictory.classList.remove('visible');
+        if (modalGameOver) modalGameOver.classList.remove('visible');
+        if (modalNodePreview) modalNodePreview.classList.remove('visible');
+
+        if (gameModeDisplay) gameModeDisplay.textContent = `NODE ${config.id}`;
+        if (gameModeSub) gameModeSub.textContent = config.title;
+        if (bountyCard) bountyCard.style.display = 'none';
+        if (adventureObjectiveCard) adventureObjectiveCard.style.display = 'block';
+        if (tutorialCard) tutorialCard.style.display = 'none';
+        if (advObjDesc) advObjDesc.textContent = config.desc;
+        if (bestLabel) bestLabel.textContent = 'Node Best';
+        const nodeRecord = career.adventureNodes ? career.adventureNodes[config.id] : null;
+        const nodeBest = nodeRecord && nodeRecord.bestScore ? nodeRecord.bestScore : 0;
+        if (bestVal) bestVal.textContent = nodeBest.toLocaleString();
+        if (turnCounterLabel) turnCounterLabel.textContent = config.rules?.fluxRate ? 'Rising In' : 'Drops Left';
+
+        showScreen('game');
+        startNewGame();
+
+        if (config.setupBoard) {
+            grid = Array(ROWS).fill(null).map(() => Array(COLS).fill(null));
+            config.setupBoard(grid, ROWS, COLS, createTile);
+        }
+        updateAdventureObjectiveUI();
+    }
+
+    // ==========================================================
+    // TACTICAL CHALLENGES RENDERER (Handcrafted Campaign)
+    // ==========================================================
+    function renderChallenges() {
+        const gridEl = challengesLevelsGrid || adventureLevelsGrid;
+        if (!gridEl) return;
+        gridEl.innerHTML = '';
 
         ADVENTURE_LEVELS.forEach(lvl => {
             if (lvl.isTutorial) {
@@ -491,7 +773,7 @@
                 card.addEventListener('click', () => {
                     startTutorialMode();
                 });
-                adventureLevelsGrid.appendChild(card);
+                gridEl.appendChild(card);
                 return;
             }
 
@@ -522,10 +804,15 @@
                 });
             }
 
-            adventureLevelsGrid.appendChild(card);
+            gridEl.appendChild(card);
         });
 
         updateCareerDisplays();
+    }
+
+    // Alias for backward compatibility
+    function renderAdventureMap() {
+        renderChallenges();
     }
 
     function startClassicMode() {
@@ -808,7 +1095,11 @@
         if (isTutorial) {
             startTutorialMode();
         } else if (gameMode === 'adventure' && activeAdventureLevel) {
-            startAdventureLevel(activeAdventureLevel.id);
+            if (activeAdventureLevel.sectorNum) {
+                startNodeLevel(activeAdventureLevel);
+            } else {
+                startAdventureLevel(activeAdventureLevel.id);
+            }
         } else {
             startClassicMode();
         }
@@ -822,7 +1113,13 @@
 
         if (isPaused) {
             if (pauseModeName) {
-                pauseModeName.textContent = isTutorial ? 'Academy Flight Training' : (gameMode === 'classic' ? 'Classic Survival' : `${activeAdventureLevel.sector}: ${activeAdventureLevel.title}`);
+                pauseModeName.textContent = isTutorial 
+                    ? 'Academy Flight Training' 
+                    : (gameMode === 'classic' 
+                        ? 'Classic Survival' 
+                        : (activeAdventureLevel && activeAdventureLevel.sectorNum 
+                            ? `Node ${activeAdventureLevel.id}: ${activeAdventureLevel.title}` 
+                            : `${activeAdventureLevel.sector}: ${activeAdventureLevel.title}`));
             }
             if (pauseModeDetail) {
                 pauseModeDetail.textContent = isTutorial ? `Step ${tutorialStep} / 4 • Score: ${score.toLocaleString()}` : `Score: ${score.toLocaleString()} • Cascade: ${maxCombo}x • Zeroes: ${totalZeroPoints}`;
@@ -870,7 +1167,8 @@
     function setupScreenFlow() {
         // Home Screen Buttons
         if (cardPlayClassic) cardPlayClassic.addEventListener('click', startClassicMode);
-        if (cardPlayAdventure) cardPlayAdventure.addEventListener('click', () => showScreen('adventure-map'));
+        if (cardPlayAdventure) cardPlayAdventure.addEventListener('click', () => showScreen('adventure-nodes'));
+        if (cardPlayChallenges) cardPlayChallenges.addEventListener('click', () => showScreen('challenges'));
         if (btnHomeTutorial) btnHomeTutorial.addEventListener('click', startTutorialMode);
         if (btnCodexTutorial) btnCodexTutorial.addEventListener('click', startTutorialMode);
         if (btnOpenCodex) btnOpenCodex.addEventListener('click', () => {
@@ -884,10 +1182,39 @@
             if (modalSettings) modalSettings.classList.add('visible');
         });
 
-        // Adventure Map
+        // Adventure Constellation Map Buttons
+        if (btnAdvNodesBack) btnAdvNodesBack.addEventListener('click', () => showScreen('home'));
+        if (btnPrevSector) btnPrevSector.addEventListener('click', () => {
+            if (currentViewingSector > 1) {
+                sfx.playMove();
+                triggerHaptic('tick');
+                renderAdventureNodeMap(currentViewingSector - 1);
+            }
+        });
+        if (btnNextSector) btnNextSector.addEventListener('click', () => {
+            if (typeof NodeGenerator !== 'undefined' && currentViewingSector < NodeGenerator.SECTOR_METADATA.length) {
+                sfx.playMove();
+                triggerHaptic('tick');
+                renderAdventureNodeMap(currentViewingSector + 1);
+            }
+        });
+
+        // Node Preview Modal Actions
+        if (btnLaunchNode) btnLaunchNode.addEventListener('click', () => {
+            if (modalNodePreview) modalNodePreview.classList.remove('visible');
+            if (pendingNodeConfig) {
+                startNodeLevel(pendingNodeConfig);
+            }
+        });
+        if (btnCloseNodePreview) btnCloseNodePreview.addEventListener('click', () => {
+            if (modalNodePreview) modalNodePreview.classList.remove('visible');
+        });
+
+        // Challenges Screen Buttons
+        if (btnChallengesToHome) btnChallengesToHome.addEventListener('click', () => showScreen('home'));
         if (btnAdvToHome) btnAdvToHome.addEventListener('click', () => showScreen('home'));
 
-        // Game Arena
+        // Game Arena Buttons
         if (btnPause) btnPause.addEventListener('click', () => togglePause());
 
         // Pause Modal Actions
@@ -909,23 +1236,33 @@
                 isTutorial = false;
                 if (tutorialCard) tutorialCard.style.display = 'none';
             }
-            showScreen('home');
+            if (activeAdventureLevel && activeAdventureLevel.sectorNum) {
+                showScreen('adventure-nodes');
+            } else if (gameMode === 'adventure') {
+                showScreen('challenges');
+            } else {
+                showScreen('home');
+            }
         });
 
         // Victory Modal Actions
         if (btnVicNext) btnVicNext.addEventListener('click', () => {
             if (modalVictory) modalVictory.classList.remove('visible');
-            if (isTutorial || (activeAdventureLevel && activeAdventureLevel.isTutorial)) {
+            if (activeAdventureLevel && activeAdventureLevel.sectorNum) {
+                showScreen('adventure-nodes');
+            } else if (isTutorial || (activeAdventureLevel && activeAdventureLevel.isTutorial)) {
                 startAdventureLevel(1);
             } else if (activeAdventureLevel && activeAdventureLevel.id < ADVENTURE_LEVELS[ADVENTURE_LEVELS.length - 1].id) {
                 startAdventureLevel(activeAdventureLevel.id + 1);
             } else {
-                showScreen('adventure-map');
+                showScreen('challenges');
             }
         });
         if (btnVicReplay) btnVicReplay.addEventListener('click', () => {
             if (modalVictory) modalVictory.classList.remove('visible');
-            if (isTutorial || (activeAdventureLevel && activeAdventureLevel.isTutorial)) {
+            if (activeAdventureLevel && activeAdventureLevel.sectorNum) {
+                startNodeLevel(activeAdventureLevel);
+            } else if (isTutorial || (activeAdventureLevel && activeAdventureLevel.isTutorial)) {
                 startTutorialMode();
             } else if (activeAdventureLevel) {
                 startAdventureLevel(activeAdventureLevel.id);
@@ -933,7 +1270,11 @@
         });
         if (btnVicMap) btnVicMap.addEventListener('click', () => {
             if (modalVictory) modalVictory.classList.remove('visible');
-            showScreen('adventure-map');
+            if (activeAdventureLevel && activeAdventureLevel.sectorNum) {
+                showScreen('adventure-nodes');
+            } else {
+                showScreen('challenges');
+            }
         });
 
         // Settings Modal Actions
@@ -1093,7 +1434,11 @@
         combo = 1;
         maxCombo = 1;
         totalZeroPoints = 0;
-        movesUntilRise = MOVES_PER_RISE;
+        if (gameMode === 'adventure' && activeAdventureLevel && activeAdventureLevel.rules && activeAdventureLevel.rules.fluxRate > 0) {
+            movesUntilRise = activeAdventureLevel.rules.fluxRate;
+        } else {
+            movesUntilRise = MOVES_PER_RISE;
+        }
         isGameOver = false;
         isProcessing = false;
         aimCol = Math.floor(COLS / 2);
@@ -1175,7 +1520,13 @@
 
     // Orb Generator
     function generateOrb() {
-        const specialChance = 0.12;
+        // Dynamic spawn pool mutators from procedural node rules
+        const poolType = (gameMode === 'adventure' && activeAdventureLevel && activeAdventureLevel.rules)
+            ? activeAdventureLevel.rules.spawnPoolType
+            : 'standard';
+
+        let specialChance = poolType === 'wildcards' ? 0.25 : (poolType === 'singles' ? 0.05 : 0.12);
+
         if (Math.random() < specialChance) {
             const specials = ['invert', 'div2', 'mul2', 'zero'];
             const chosen = specials[Math.floor(Math.random() * specials.length)];
@@ -1188,9 +1539,18 @@
             };
         }
 
-        // Standard number orbs (range scales moderately with score)
-        const maxVal = score > 5000 ? 8 : (score > 2000 ? 6 : 4);
-        let val = Math.floor(Math.random() * maxVal) + 1;
+        let val = 1;
+        if (poolType === 'singles') {
+            val = 1;
+        } else if (poolType === 'high_energy') {
+            const energyPool = [2, 4];
+            val = energyPool[Math.floor(Math.random() * energyPool.length)];
+        } else {
+            // Standard number orbs (range scales moderately with score)
+            const maxVal = score > 5000 ? 8 : (score > 2000 ? 6 : 4);
+            val = Math.floor(Math.random() * maxVal) + 1;
+        }
+
         // 50% positive, 50% negative
         if (Math.random() < 0.5) val = -val;
 
@@ -1505,6 +1865,12 @@
                     movesUntilRise--;
                     if (movesUntilRise <= 0) {
                         movesUntilRise = MOVES_PER_RISE;
+                        await pushRisingRow();
+                    }
+                } else if (gameMode === 'adventure' && activeAdventureLevel && activeAdventureLevel.rules && activeAdventureLevel.rules.fluxRate > 0) {
+                    movesUntilRise--;
+                    if (movesUntilRise <= 0) {
+                        movesUntilRise = activeAdventureLevel.rules.fluxRate;
                         await pushRisingRow();
                     }
                 }
@@ -2143,15 +2509,65 @@
 
         addFloatingText('SECTOR CLEARED!', canvas.width / (2 * dpr), boardOffsetY + cellH * 2.5, 'var(--gold)', 1.5);
 
-        const lvlId = activeAdventureLevel.id;
-        career.levelStars[lvlId] = Math.max(career.levelStars[lvlId] || 0, totalStars);
-        career.levelHighScores[lvlId] = Math.max(career.levelHighScores[lvlId] || 0, finalScore);
-        if (lvlId >= career.unlockedLevel && lvlId < ADVENTURE_LEVELS.length) {
-            career.unlockedLevel = lvlId + 1;
-        }
-        saveCareerData();
+        const isNodeLevel = !!(activeAdventureLevel && activeAdventureLevel.sectorNum);
+        if (isNodeLevel) {
+            const nodeId = activeAdventureLevel.id;
+            const existingNode = (career.adventureNodes && career.adventureNodes[nodeId]) || {};
+            if (!career.adventureNodes) career.adventureNodes = {};
 
-        if (victoryTitle) victoryTitle.textContent = `${activeAdventureLevel.sector} Cleared!`;
+            career.adventureNodes[nodeId] = {
+                cleared: true,
+                stars: Math.max(existingNode.stars || 0, totalStars),
+                bestScore: Math.max(existingNode.bestScore || 0, finalScore),
+                bestDrops: Math.min(existingNode.bestDrops || 999, dropsUsed)
+            };
+
+            // Unlock next connected node(s) in graph
+            if (!career.unlockedNodes) career.unlockedNodes = ['1-1'];
+            if (typeof NodeGenerator !== 'undefined') {
+                const graph = NodeGenerator.getSectorGraph(activeAdventureLevel.sectorNum);
+                const nextLinks = graph.links.filter(l => l.from === nodeId);
+                nextLinks.forEach(l => {
+                    if (!career.unlockedNodes.includes(l.to)) {
+                        career.unlockedNodes.push(l.to);
+                    }
+                });
+
+                // If cleared sector boss (e.g. 1-10), unlock next sector root node (e.g. 2-1)
+                if (activeAdventureLevel.isBoss) {
+                    const nextSectorRoot = `${activeAdventureLevel.sectorNum + 1}-1`;
+                    if (!career.unlockedNodes.includes(nextSectorRoot)) {
+                        career.unlockedNodes.push(nextSectorRoot);
+                    }
+                }
+            }
+
+            saveCareerData();
+
+            if (victoryTitle) victoryTitle.textContent = `${activeAdventureLevel.title} Cleared!`;
+            if (btnVicNext) {
+                btnVicNext.textContent = 'Return to Map ➜';
+            }
+        } else {
+            // Handcrafted Challenge Level
+            const lvlId = activeAdventureLevel.id;
+            career.levelStars[lvlId] = Math.max(career.levelStars[lvlId] || 0, totalStars);
+            career.levelHighScores[lvlId] = Math.max(career.levelHighScores[lvlId] || 0, finalScore);
+            if (lvlId >= career.unlockedLevel && lvlId < ADVENTURE_LEVELS.length) {
+                career.unlockedLevel = lvlId + 1;
+            }
+            saveCareerData();
+
+            if (victoryTitle) victoryTitle.textContent = `${activeAdventureLevel.sector || 'Mission'} Cleared!`;
+            if (btnVicNext) {
+                if (lvlId < ADVENTURE_LEVELS.length) {
+                    btnVicNext.textContent = 'Next Challenge ➜';
+                } else {
+                    btnVicNext.textContent = 'Challenges Complete 🏆';
+                }
+            }
+        }
+
         if (vicScore) vicScore.textContent = finalScore.toLocaleString();
         if (vicDrops) vicDrops.textContent = `${dropsUsed} / ${maxDrops}`;
         if (vicBonus) vicBonus.textContent = `+${dropBonus.toLocaleString()}`;
@@ -2163,14 +2579,6 @@
                 <span class="vic-star ${totalStars >= 2 ? 'active' : ''}">⭐</span>
                 <span class="vic-star ${totalStars >= 3 ? 'active' : ''}">⭐</span>
             `;
-        }
-
-        if (btnVicNext) {
-            if (lvlId < ADVENTURE_LEVELS.length) {
-                btnVicNext.textContent = 'Next Sector ➜';
-            } else {
-                btnVicNext.textContent = 'Campaign Complete 🏆';
-            }
         }
 
         setTimeout(() => {
@@ -2187,9 +2595,16 @@
                 bestVal.textContent = career.highScore.toLocaleString();
             }
         } else if (gameMode === 'adventure' && activeAdventureLevel) {
-            const lvlBest = career.levelHighScores[activeAdventureLevel.id] || 0;
-            if (score > lvlBest) {
-                bestVal.textContent = score.toLocaleString();
+            if (activeAdventureLevel.sectorNum) {
+                const existing = career.adventureNodes ? (career.adventureNodes[activeAdventureLevel.id]?.bestScore || 0) : 0;
+                if (score > existing) {
+                    bestVal.textContent = score.toLocaleString();
+                }
+            } else {
+                const lvlBest = career.levelHighScores[activeAdventureLevel.id] || 0;
+                if (score > lvlBest) {
+                    bestVal.textContent = score.toLocaleString();
+                }
             }
         }
         scoreVal.textContent = score.toLocaleString();

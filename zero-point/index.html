@@ -61,6 +61,26 @@
 
             <!-- Mode Selection Cards -->
             <div class="mode-cards-container">
+                <div class="mode-card mode-adventure" id="card-play-adventure">
+                    <div class="mode-header">
+                        <span class="mode-badge badge-adventure">🚀 CONSTELLATION MAP</span>
+                        <span id="home-card-stars" class="mode-stat">⭐ 0 Nodes</span>
+                    </div>
+                    <h2 class="mode-title">Adventure Mode</h2>
+                    <p class="mode-desc">Chart connected sector nodes across the cosmos. Master evolving objectives, rising flux, and unique particle rules.</p>
+                    <button class="btn-mode-action">Star Map ➜</button>
+                </div>
+
+                <div class="mode-card mode-challenges" id="card-play-challenges">
+                    <div class="mode-header">
+                        <span class="mode-badge badge-challenges">🎯 PUZZLE MISSIONS</span>
+                        <span id="home-card-challenge-stars" class="mode-stat">⭐ 0 / 15</span>
+                    </div>
+                    <h2 class="mode-title">Challenges</h2>
+                    <p class="mode-desc">Conquer handcrafted tactical missions, breach dark matter blockades, and defeat Sector Bosses.</p>
+                    <button class="btn-mode-action">Tactical Board ➜</button>
+                </div>
+
                 <div class="mode-card mode-classic" id="card-play-classic">
                     <div class="mode-header">
                         <span class="mode-badge badge-classic">⚡ SURVIVAL</span>
@@ -69,16 +89,6 @@
                     <h2 class="mode-title">Classic Mode</h2>
                     <p class="mode-desc">Survive the rising reactor pressure, trigger cascading fusions, and charge Singularity Frenzy.</p>
                     <button class="btn-mode-action">Ignite Reactor ➜</button>
-                </div>
-
-                <div class="mode-card mode-adventure" id="card-play-adventure">
-                    <div class="mode-header">
-                        <span class="mode-badge badge-adventure">🚀 CAMPAIGN</span>
-                        <span id="home-card-stars" class="mode-stat">⭐ 0 / 15</span>
-                    </div>
-                    <h2 class="mode-title">Adventure Mode</h2>
-                    <p class="mode-desc">Conquer handcrafted quantum sectors, complete tactical objectives under turn limits, and earn stars.</p>
-                    <button class="btn-mode-action">Sector Map ➜</button>
                 </div>
             </div>
 
@@ -105,25 +115,63 @@
         </section>
 
         <!-- ========================================== -->
-        <!-- SCREEN 2: ADVENTURE MODE (Sector & Levels) -->
+        <!-- SCREEN 2: ADVENTURE CONSTELLATION MAP      -->
         <!-- ========================================== -->
-        <section id="screen-adventure-map" class="screen-view">
+        <section id="screen-adventure-nodes" class="screen-view">
+            <header class="adv-nodes-header">
+                <button id="btn-adv-nodes-back" class="btn-icon" title="Back to Home">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+                <div class="adv-nodes-title-group">
+                    <span class="adv-sector-badge" id="adv-nodes-sector-badge">SECTOR 01</span>
+                    <h2 id="adv-nodes-sector-title">Subatomic Genesis</h2>
+                </div>
+                <div class="adv-nodes-stats">
+                    <span id="adv-nodes-stars-pill" class="stars-pill">⭐ 0 Stars</span>
+                </div>
+            </header>
+
+            <!-- Sector Navigator Bar -->
+            <div class="sector-nav-bar">
+                <button id="btn-prev-sector" class="btn-sector-nav" title="Previous Sector">◀</button>
+                <div class="sector-indicator" id="sector-indicator-text">Sector 1 of 2</div>
+                <button id="btn-next-sector" class="btn-sector-nav" title="Next Sector">▶</button>
+            </div>
+
+            <!-- Constellation Map Viewport -->
+            <div class="adv-map-viewport" id="adv-map-viewport">
+                <div class="adv-map-canvas-container" id="adv-map-canvas-container">
+                    <svg class="adv-map-svg" id="adv-map-svg"></svg>
+                    <div class="adv-map-nodes-layer" id="adv-map-nodes-layer">
+                        <!-- Populated dynamically by game.js via NodeGenerator -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SCREEN 2B: TACTICAL CHALLENGES (Handcrafted) -->
+        <!-- ========================================== -->
+        <section id="screen-challenges" class="screen-view">
             <header class="adv-header">
-                <button id="btn-adv-to-home" class="btn-icon" title="Back to Home">
+                <button id="btn-challenges-to-home" class="btn-icon" title="Back to Home">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 5 12 12 5"></polyline>
                     </svg>
                 </button>
                 <div class="adv-title-group">
-                    <span class="adv-sector-badge">CAMPAIGN MAP</span>
-                    <h2>Sector 1: Subatomic Genesis</h2>
+                    <span class="adv-sector-badge">CHALLENGES</span>
+                    <h2>Tactical Missions</h2>
                 </div>
-                <div class="adv-total-stars" id="adv-header-stars">⭐ 0 / 15</div>
+                <div class="adv-total-stars" id="challenges-header-stars">⭐ 0 / 15</div>
             </header>
 
             <div class="levels-scroll-container">
-                <div class="levels-grid" id="adventure-levels-grid">
+                <div class="levels-grid" id="challenges-levels-grid">
                     <!-- Populated dynamically by game.js -->
                 </div>
             </div>
@@ -635,10 +683,63 @@
                 </div>
             </div>
         </div>
+
+        <!-- ========================================== -->
+        <!-- MODAL: NODE INSPECTION & PREVIEW           -->
+        <!-- ========================================== -->
+        <div id="modal-node-preview" class="overlay">
+            <div class="modal-card node-preview-card">
+                <div class="node-preview-header">
+                    <div class="node-badge-row">
+                        <span id="node-preview-sector-badge" class="badge-adventure">SECTOR 1</span>
+                        <span id="node-preview-id-badge" class="badge-node-id">NODE 1-04</span>
+                    </div>
+                    <button id="btn-close-node-preview" class="btn-icon" aria-label="Close">✕</button>
+                </div>
+
+                <h3 id="node-preview-title" class="node-preview-title">Dark Matter Trench</h3>
+                <p id="node-preview-desc" class="node-preview-desc">Shatter 3 Dark Matter obstacle cores</p>
+
+                <!-- Dynamic Modifiers List -->
+                <div id="node-preview-modifiers" class="node-modifiers-list">
+                    <!-- Dynamic tag pills: e.g. ⚡ Turbulent Flux, 🧩 Pure Singles -->
+                </div>
+
+                <!-- Star Requirements -->
+                <div class="node-star-targets">
+                    <div class="star-target-row" id="target-star-1">
+                        <span class="star-icon">⭐</span>
+                        <span class="star-desc" id="star-desc-1">Clear Node Objective</span>
+                        <span class="star-status" id="star-status-1">☆</span>
+                    </div>
+                    <div class="star-target-row" id="target-star-2">
+                        <span class="star-icon">⭐</span>
+                        <span class="star-desc" id="star-desc-2">Finish within 11 Drops</span>
+                        <span class="star-status" id="star-status-2">☆</span>
+                    </div>
+                    <div class="star-target-row" id="target-star-3">
+                        <span class="star-icon">⭐</span>
+                        <span class="star-desc" id="star-desc-3">Score 180+ Points</span>
+                        <span class="star-status" id="star-status-3">☆</span>
+                    </div>
+                </div>
+
+                <!-- Records Row -->
+                <div class="node-records-row">
+                    <span>🏆 Best: <strong id="node-best-score">-</strong></span>
+                    <span>🎯 Drops: <strong id="node-best-drops">-</strong></span>
+                </div>
+
+                <div class="node-preview-actions">
+                    <button id="btn-launch-node" class="btn-large btn-vibrant">LAUNCH NODE ➜</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->
     <script src="audio.js"></script>
+    <script src="nodeGenerator.js"></script>
     <script src="game.js"></script>
 </body>
 </html>
