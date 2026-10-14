@@ -272,23 +272,23 @@ header {
 .hold-section, .queue-section {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .tactical-label {
-    font-size: 0.65rem;
+    font-size: 0.78rem;
     color: var(--text-muted);
     font-weight: 800;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
 }
 
 .slot {
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px dashed var(--border-color);
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1.5px dashed var(--border-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -299,12 +299,20 @@ header {
 
 .slot:hover {
     border-color: var(--purple);
-    box-shadow: 0 0 10px rgba(196, 113, 237, 0.3);
+    box-shadow: 0 0 12px rgba(196, 113, 237, 0.35);
 }
 
 .hold-slot.active {
     border-style: solid;
     border-color: var(--purple);
+    box-shadow: 0 0 12px rgba(196, 113, 237, 0.25);
+}
+
+#hold-text {
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    display: inline-block;
 }
 
 /* Quantum Swap Slot */
@@ -316,15 +324,22 @@ header {
 }
 
 .swap-slot {
-    border-color: rgba(0, 242, 254, 0.3);
+    border-color: rgba(0, 242, 254, 0.35);
     color: var(--cyan);
     font-weight: 900;
-    font-size: 0.85rem;
+    font-size: 1.15rem;
+}
+
+.swap-token-text {
+    font-size: 1.15rem;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    display: inline-block;
 }
 
 .swap-slot:hover {
     border-color: var(--cyan);
-    box-shadow: 0 0 10px var(--cyan-glow);
+    box-shadow: 0 0 12px var(--cyan-glow);
 }
 
 .swap-slot.has-tokens {
@@ -432,18 +447,30 @@ header {
 
 .queue-preview {
     display: flex;
-    gap: 6px;
+    gap: 8px;
+}
+
+.next-slot {
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+.queue-orb-label {
+    font-weight: 900;
+    font-size: 1.25rem;
+    letter-spacing: -0.5px;
+    display: inline-block;
 }
 
 .turn-counter {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 2px;
 }
 
 .counter-ring {
-    font-size: 0.85rem;
-    font-weight: 800;
+    font-size: 0.98rem;
+    font-weight: 900;
     color: var(--orange);
 }
 
@@ -596,17 +623,33 @@ canvas {
 
     .tactical-hud {
         gap: 6px;
-        padding: 4px 6px;
+        padding: 5px 6px;
+    }
+
+    .tactical-label {
+        font-size: 0.72rem;
     }
 
     .slot {
-        width: 38px;
-        height: 38px;
+        width: 44px;
+        height: 44px;
+    }
+
+    #hold-text, .queue-orb-label {
+        font-size: 1.15rem;
+    }
+
+    .swap-token-text, .swap-slot {
+        font-size: 1.05rem;
+    }
+
+    .counter-ring {
+        font-size: 0.9rem;
     }
 
     .action-btn {
         padding: 10px 4px;
-        font-size: 0.78rem;
+        font-size: 0.88rem;
     }
 }
 

@@ -2610,10 +2610,12 @@
             holdText.textContent = heldOrb.label;
             holdText.style.color = heldOrb.type === 'special' ? (heldOrb.subType === 'blackhole' ? '#ffd700' : 'var(--purple)') :
                                   (heldOrb.value > 0 ? 'var(--cyan)' : 'var(--orange)');
+            holdText.style.fontSize = (heldOrb.label && heldOrb.label.length > 2) ? '1.05rem' : '1.25rem';
             holdSlot.classList.add('active');
         } else {
             holdText.textContent = '-';
             holdText.style.color = 'var(--text-muted)';
+            holdText.style.fontSize = '1.25rem';
             holdSlot.classList.remove('active');
         }
 
@@ -2632,7 +2634,8 @@
              orb.subType === 'antimatter_nuke' ? 'var(--orange)' : 'var(--purple)') :
             (orb.value > 0 ? 'var(--cyan)' : 'var(--orange)');
 
-        element.innerHTML = `<span style="font-weight:900; font-size: 0.85rem; color: ${color};">${orb.label}</span>`;
+        const fontSize = (orb.label && orb.label.length > 2) ? '1.05rem' : '1.25rem';
+        element.innerHTML = `<span class="queue-orb-label" style="font-size: ${fontSize}; color: ${color};">${orb.label}</span>`;
     }
 
     // Input Handlers
