@@ -1839,8 +1839,8 @@
             addFloatingText(bannerText, x, y + 20, bannerColor, bannerScale);
         }
 
-        // Tier-scaled score bonus
-        const baseScore = 200 * Math.pow(2, tier - 1);
+        // Tier-scaled score bonus (Base 50 for Tier 1)
+        const baseScore = 50 * Math.pow(2, tier - 1);
         addScore(baseScore * combo * (chainStep + 1));
 
         // Balanced Overdrive charge: Tier 1 (+2%), Tier 2 (+4%), Tier 3 (+7%), Tier 4 (+12%), Tier 5 (+18%)
