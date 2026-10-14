@@ -140,14 +140,14 @@
             id: 1,
             title: "Subatomic Spark",
             sector: "Sector 01-1",
-            desc: "Trigger 3 Zero Point Annihilations",
+            desc: "Trigger 3 Zero Blasts (Cancel opposites to zero)",
             maxDrops: 15,
             targetDropsForStar: 10,
             targetScoreForStar: 2000,
             objective: {
                 type: 'annihilations',
                 target: 3,
-                label: "Zero Point Annihilations"
+                label: "Zero Blasts"
             },
             setupBoard: (g) => {
                 const pool = [1, -1, 2, -2, 1, -1];
@@ -159,16 +159,16 @@
         },
         {
             id: 2,
-            title: "Isotope Fusion",
+            title: "Double Merge",
             sector: "Sector 01-2",
-            desc: "Synthesize a +4 or higher matter orb",
+            desc: "Merge same numbers to reach a +4 or higher orb",
             maxDrops: 14,
             targetDropsForStar: 9,
             targetScoreForStar: 2800,
             objective: {
                 type: 'synthesis_tier',
                 target: 4,
-                label: "+4 Matter Orb Synthesized"
+                label: "+4 Orb Merged"
             },
             setupBoard: (g) => {
                 for (let c = 0; c < COLS; c++) {
@@ -205,14 +205,14 @@
             id: 4,
             title: "Cross Laser Ignition",
             sector: "Sector 01-4",
-            desc: "Detonate a Cross Laser (±4 or higher)",
+            desc: "Fire a Cross Laser (Cancel a ±4 or higher pair)",
             maxDrops: 16,
             targetDropsForStar: 11,
             targetScoreForStar: 4200,
             objective: {
                 type: 'trigger_laser',
                 target: 1,
-                label: "Cross Laser Detonated"
+                label: "Cross Laser Fired"
             },
             setupBoard: (g) => {
                 g[ROWS - 1][0] = createTile(4);
@@ -1855,8 +1855,8 @@
         },
         {
             id: 'synthesis',
-            title: 'Double Fusion',
-            desc: 'Synthesize identical tiles 2 times (e.g. +2 & +2)',
+            title: 'Double Merge',
+            desc: 'Merge identical numbers 2 times (e.g. +2 & +2)',
             target: 2,
             rewardScore: 400,
             rewardSwap: 1,
@@ -2908,17 +2908,17 @@
 
                 ctx.save();
                 if (willZeroPoint) {
-                    let previewLabel = '💥 ZERO POINT!';
+                    let previewLabel = '💥 ZERO BLAST (0)!';
                     let previewColor = '#ffffff';
 
                     if (previewTier === 2) {
-                        previewLabel = '⚡ PULSE BLAST!';
+                        previewLabel = '⚡ SHOCKWAVE BLAST!';
                         previewColor = '#00f2fe';
                     } else if (previewTier === 3) {
                         previewLabel = '⚡ CROSS LASER (Row & Col)!';
                         previewColor = '#00f2fe';
                     } else if (previewTier === 4) {
-                        previewLabel = '🌟 SUPERNOVA (3x3 Crater!)';
+                        previewLabel = '🌟 SUPERNOVA (3x3 Area!)';
                         previewColor = '#ffd700';
                     } else if (previewTier === 5) {
                         previewLabel = '💥 HYPERSPACE SINGULARITY!';
@@ -2948,7 +2948,8 @@
                     ctx.textAlign = 'center';
                     ctx.shadowColor = synthColor;
                     ctx.shadowBlur = 8;
-                    ctx.fillText(`✨ SYNTHESIS (➜ ${orbVal * 2})`, centerX, ghostY - cellH / 2 - 4);
+                    const nextVal = (orbVal * 2 > 0 ? '+' : '') + (orbVal * 2);
+                    ctx.fillText(`✨ MERGE (➜ ${nextVal})`, centerX, ghostY - cellH / 2 - 4);
                 } else {
                     // Standard drop indicator badge
                     const tagColor = orbFlavor === 'pos' ? '#a5f3fc' : '#fecdd3';

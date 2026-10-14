@@ -204,7 +204,7 @@
                         <span class="adv-obj-stars" id="adv-obj-stars">☆☆☆</span>
                     </div>
                     <div class="adv-obj-desc-row">
-                        <span class="adv-obj-desc" id="adv-obj-desc">Trigger 3 Zero Point Annihilations</span>
+                        <span class="adv-obj-desc" id="adv-obj-desc">Trigger 3 Zero Blasts (Cancel to Zero)</span>
                         <span class="adv-obj-progress" id="adv-obj-progress">0 / 3</span>
                     </div>
                     <div class="adv-obj-track">
@@ -303,13 +303,13 @@
 
             <!-- Navigation Tabs -->
             <div class="codex-tabs">
-                <button class="codex-tab active" data-tab="annihilation">1. Annihilation</button>
-                <button class="codex-tab" data-tab="synthesis">2. Synthesis</button>
+                <button class="codex-tab active" data-tab="annihilation">1. Zero Blast</button>
+                <button class="codex-tab" data-tab="synthesis">2. Merge & Double</button>
                 <button class="codex-tab" data-tab="specials">3. Special Orbs</button>
                 <button class="codex-tab" data-tab="tactics">4. Tactics</button>
             </div>
 
-            <!-- Tab 1: Annihilation -->
+            <!-- Tab 1: Zero Blast (Cancel to Zero) -->
             <div class="codex-tab-content active" id="tab-annihilation">
                 <div class="codex-card">
                     <div class="codex-hero-demo">
@@ -319,32 +319,32 @@
                         <span class="codex-op">=</span>
                         <span class="codex-orb zero">0 💥</span>
                     </div>
-                    <h3>Opposites Annihilate to Zero</h3>
-                    <p>Every dropped number contains positive cyan matter (<code>+N</code>) or negative coral antimatter (<code>-N</code>). When two opposites touch, they collapse into zero and trigger a detonation blast!</p>
+                    <h3>Opposites Cancel to Zero</h3>
+                    <p>Every dropped number is positive cyan (<code>+N</code>) or negative coral (<code>-N</code>). When two opposite numbers touch (like <code>+3</code> and <code>-3</code>), they add up to 0, cancel out, and detonate a <strong>Zero Blast</strong>!</p>
                 </div>
 
                 <div class="codex-card">
-                    <h3>Detonation Blast Tiers</h3>
+                    <h3>Zero Blast Power Levels</h3>
                     <div class="tier-row">
                         <span class="tier-pill tier-1">±1</span>
                         <span><strong>Micro Pop:</strong> Basic single-cell clear.</span>
                     </div>
                     <div class="tier-row">
                         <span class="tier-pill tier-2">±2</span>
-                        <span><strong>Pulse Shockwave:</strong> High-impact blast damaging nearby dark matter.</span>
+                        <span><strong>Shockwave:</strong> High-impact wave that cracks nearby Dark Matter blocks.</span>
                     </div>
                     <div class="tier-row">
                         <span class="tier-pill tier-3">±4</span>
-                        <span><strong>Cross Laser:</strong> Blasts laser beams across the entire row and column!</span>
+                        <span><strong>Cross Laser:</strong> Fires intense laser beams across the entire row and column!</span>
                     </div>
                     <div class="tier-row">
                         <span class="tier-pill tier-4">±8+</span>
-                        <span><strong>Supernova:</strong> Obliterates a massive 3&times;3 crater and vaporizes all dark matter!</span>
+                        <span><strong>Supernova:</strong> Obliterates a massive 3&times;3 area and awards a bonus Swap Token!</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab 2: Synthesis -->
+            <!-- Tab 2: Merge & Double -->
             <div class="codex-tab-content" id="tab-synthesis">
                 <div class="codex-card">
                     <div class="codex-hero-demo">
@@ -354,13 +354,13 @@
                         <span class="codex-op">=</span>
                         <span class="codex-orb cyan large">+4 ✨</span>
                     </div>
-                    <h3>Same-Sign Synthesis</h3>
-                    <p>Touching identical numbers fuse together (<code>+2 & +2 = +4</code>, <code>+4 & +4 = +8</code>, <code>-3 & -3 = -6</code>). Always synthesize higher numbers to craft monster Cross Lasers and Supernovas!</p>
+                    <h3>Same Numbers Merge & Double</h3>
+                    <p>Touching identical numbers combine together and double in value (<code>+2 & +2 = +4</code>, <code>+4 & +4 = +8</code>, <code>-3 & -3 = -6</code>). Merge larger numbers to craft monster Cross Lasers and Supernovas!</p>
                 </div>
 
                 <div class="codex-card">
-                    <h3>Chain Reaction Combos</h3>
-                    <p>When tiles fall to fill empty spaces after a merge, any subsequent matches trigger cascading combos (<code>2x, 3x, 4x...</code>), awarding massive score multipliers and instantly recharging your Swap Tokens!</p>
+                    <h3>Chain Reaction Cascades</h3>
+                    <p>When tiles fall into empty spaces after a match, any new matches trigger cascading combos (<code>2x, 3x, 4x...</code>), multiplying your score and quickly recharging your Swap Tokens!</p>
                 </div>
             </div>
 
@@ -370,43 +370,43 @@
                     <div class="special-card">
                         <span class="special-icon purple">±</span>
                         <div>
-                            <h4>[±] Invert</h4>
-                            <p>Flips the sign of the target tile (turns +4 into -4, or -8 into +8) to instantly trigger zero point.</p>
+                            <h4>[±] Flip Sign</h4>
+                            <p>Flips a number between positive and negative (e.g. turns +4 into -4), allowing you to immediately cancel an opposite number to zero.</p>
                         </div>
                     </div>
                     <div class="special-card">
                         <span class="special-icon cyan">÷2</span>
                         <div>
-                            <h4>[÷2] Fission</h4>
-                            <p>Halves the value of a target orb, perfect for matching smaller numbers.</p>
+                            <h4>[÷2] Halve (Split)</h4>
+                            <p>Cuts a number in half (e.g. 8 becomes 4), perfect for matching smaller numbers on the board.</p>
                         </div>
                     </div>
                     <div class="special-card">
                         <span class="special-icon gold">×2</span>
                         <div>
-                            <h4>[×2] Amplify</h4>
-                            <p>Doubles a tile's value, rapidly accelerating your path to high-tier Supernovas.</p>
+                            <h4>[×2] Double Up</h4>
+                            <p>Doubles a tile's number (e.g. 4 becomes 8), accelerating your path to high-tier Supernovas.</p>
                         </div>
                     </div>
                     <div class="special-card">
                         <span class="special-icon purple">0</span>
                         <div>
-                            <h4>[0] Singularity Bomb</h4>
-                            <p>Clears a 3&times;3 blast radius, destroying all obstacles and dark matter in its path.</p>
+                            <h4>[0] Core Bomb</h4>
+                            <p>Clears a 3&times;3 area of tiles, destroying obstacles and dark matter in its crater.</p>
                         </div>
                     </div>
                     <div class="special-card">
                         <span class="special-icon gold">⚫</span>
                         <div>
-                            <h4>⚫ Black Hole Vortex (Frenzy)</h4>
-                            <p>Unleashed during Frenzy: Gravitationally crushes and devours the entire column.</p>
+                            <h4>⚫ Black Hole (Frenzy)</h4>
+                            <p>Unleashed during Frenzy: Gravitationally crushes and clears an entire column from top to bottom.</p>
                         </div>
                     </div>
                     <div class="special-card">
                         <span class="special-icon coral">💥</span>
                         <div>
-                            <h4>💥 Antimatter Nuke (Frenzy)</h4>
-                            <p>Deploys a devastating 3&times;3 high-yield nuclear implosion across the board.</p>
+                            <h4>💥 Mega Nuke (Frenzy)</h4>
+                            <p>Deploys a devastating 3&times;3 high-yield explosion across the board.</p>
                         </div>
                     </div>
                 </div>
